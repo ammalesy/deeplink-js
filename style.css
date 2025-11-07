@@ -67,9 +67,10 @@ input[type="text"]:focus {
 }
 
 .btn:disabled {
-    background: #ccc;
+    background: #6c757d;
     cursor: not-allowed;
     transform: none;
+    opacity: 0.8;
 }
 
 .status {

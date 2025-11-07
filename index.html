@@ -28,22 +28,79 @@
 
     <script src="kplus-deeplink.js"></script>
     <script>
+        var originalButtonText = '🚀 เปิด K PLUS';
+        var isProcessing = false;
+        
         // ทดสอบเปิด K PLUS แบบปกติ - Compatible with older browsers
         function testOpenKPlus() {
+            if (isProcessing) {
+                return; // ป้องกันการกดปุ่มซ้ำ
+            }
+            
             var token = 'token_sample_xxx'; // Hard coded token
+            var button = document.querySelector('.btn');
             
             try {
-                openKPlus(token);
+                openKPlus(token, 3000, {
+                    onStart: function() {
+                        isProcessing = true;
+                        button.disabled = true;
+                        button.textContent = '🚀 กำลังเปิดแอป...';
+                        if (console && console.log) {
+                            console.log('เริ่มเปิด K PLUS แล้ว');
+                        }
+                    },
+                    
+                    onTimer: function(timeRemaining) {
+                        if (timeRemaining > 0) {
+                            button.textContent = '⏰ รอ ' + timeRemaining + ' วินาที...';
+                        }
+                    },
+                    
+                    onSuccess: function() {
+                        button.textContent = '✅ เปิดแอปสำเร็จ!';
+                        if (console && console.log) {
+                            console.log('เปิดแอป K PLUS สำเร็จ!');
+                        }
+                        
+                        // รีเซ็ตปุ่มหลังจาก 2 วินาที
+                        setTimeout(function() {
+                            resetButton();
+                        }, 2000);
+                    },
+                    
+                    onFallback: function() {
+                        button.textContent = '📱 เปิด App Store';
+                        if (console && console.log) {
+                            console.log('เปิด App Store เนื่องจากไม่พบแอป K PLUS');
+                        }
+                        
+                        // รีเซ็ตปุ่มหลังจาก 3 วินาที
+                        setTimeout(function() {
+                            resetButton();
+                        }, 3000);
+                    }
+                });
+                
             } catch (error) {
+                resetButton();
                 if (console && console.error) {
                     console.error('เกิดข้อผิดพลาด:', error.message);
                 }
             }
         }
+        
+        // ฟังก์ชันรีเซ็ตปุ่มกลับสู่สถานะเดิม
+        function resetButton() {
+            var button = document.querySelector('.btn');
+            button.textContent = originalButtonText;
+            button.disabled = false;
+            isProcessing = false;
+        }
 
         // Log ตัวอย่างการใช้งาน - Safe console logging
         if (console && console.log) {
-            console.log('🏦 K PLUS Deep Link Handler - Ready to use');
+            console.log('🏦 K PLUS Deep Link Handler - Ready to use with timer callbacks');
         }
     </script>
 </body>

@@ -32,14 +32,26 @@ KPlusDeepLinkHandler.prototype.detectPlatform = function() {
  * Open K PLUS app with authentication token
  * @param {string} token - Authentication token to be passed to the app
  * @param {number} fallbackDelay - Delay before showing fallback (default: 2500ms)
+ * @param {Object} callbacks - Callback functions for different events
+ * @param {Function} callbacks.onStart - Called when deep link attempt starts
+ * @param {Function} callbacks.onTimer - Called every second with remaining time
+ * @param {Function} callbacks.onSuccess - Called when app opens successfully
+ * @param {Function} callbacks.onFallback - Called when fallback to store
  */
-KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, fallbackDelay) {
+KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, fallbackDelay, callbacks) {
   var self = this;
   
   // Default parameter handling for older browsers
   if (typeof fallbackDelay === 'undefined') {
     fallbackDelay = 2500;
   }
+  
+  // Default callbacks
+  callbacks = callbacks || {};
+  var onStart = callbacks.onStart || function() {};
+  var onTimer = callbacks.onTimer || function() {};
+  var onSuccess = callbacks.onSuccess || function() {};
+  var onFallback = callbacks.onFallback || function() {};
   
   if (!token) {
     throw new Error('Token is required');
@@ -48,6 +60,11 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, fallbackDelay) {
   var fullUrl = this.deepLinkUrl + '?tokenId=' + encodeURIComponent(token) + '&nextAction=authenwithkplus';
   
   var hasLeftPage = false;
+  var timerInterval = null;
+  var timeRemaining = Math.ceil(fallbackDelay / 1000); // Convert to seconds
+  
+  // Call onStart callback
+  onStart();
   
   function handleVisibilityChange() {
     var hidden = document.hidden || 
@@ -57,11 +74,22 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, fallbackDelay) {
                  
     if (hidden) {
       hasLeftPage = true;
+      
+      // Clear timer
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      
+      // Remove event listener
       if (document.removeEventListener) {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
       } else if (document.detachEvent) {
         document.detachEvent('onvisibilitychange', handleVisibilityChange);
       }
+      
+      // Call success callback
+      onSuccess();
     }
   }
 
@@ -79,11 +107,31 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, fallbackDelay) {
     }
   }
 
+  // Start countdown timer
+  timerInterval = setInterval(function() {
+    timeRemaining--;
+    onTimer(timeRemaining);
+    
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }, 1000);
+  
+  // Initial timer call
+  onTimer(timeRemaining);
+
   // Try to open the deep link
   window.location.href = fullUrl;
 
   // Set fallback timer
   setTimeout(function() {
+    // Clear timer interval if still running
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
     if (supportsVisibilityAPI) {
       // Remove event listener if we added one
       if (document.removeEventListener) {
@@ -94,6 +142,7 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, fallbackDelay) {
     }
     
     if (!hasLeftPage) {
+      onFallback();
       self.handleFallback();
     }
   }, fallbackDelay);
@@ -118,6 +167,6 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // Global function for easy access - compatible with older browsers
-window.openKPlus = function(token, delay) {
-  return kplusHandler.openKPlusApp(token, delay);
+window.openKPlus = function(token, delay, callbacks) {
+  return kplusHandler.openKPlusApp(token, delay, callbacks);
 };
