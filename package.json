@@ -1,0 +1,38 @@
+{
+  "name": "kplus-deeplink-js",
+  "version": "1.0.0",
+  "description": "JavaScript library for opening K PLUS app via deep link with automatic fallback to app stores",
+  "main": "kplus-deeplink.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "python3 -m http.server 8000 || python -m SimpleHTTPServer 8000",
+    "start": "npm run serve"
+  },
+  "keywords": [
+    "kplus",
+    "deeplink",
+    "kbank",
+    "mobile",
+    "app",
+    "javascript",
+    "ios",
+    "android"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/kplus-deeplink-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/kplus-deeplink-js/issues"
+  },
+  "homepage": "https://github.com/yourusername/kplus-deeplink-js#readme",
+  "files": [
+    "kplus-deeplink.js",
+    "style.css",
+    "README.md", 
+    "index.html"
+  ],
+  "browser": "kplus-deeplink.js"
+}

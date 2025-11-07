@@ -105,7 +105,7 @@ kbank.kplus://authenwithkplus?tokenId={{token}}&nextAction=authenwithkplus
 
 ```bash
 # เปิดไฟล์ตัวอย่าง
-open simple-example.html
+open index.html
 ```
 
 ## การทำงานของระบบ Fallback
