@@ -155,7 +155,7 @@ KPlusDeepLinkHandler.prototype.handleFallback = function() {
   var platform = this.detectPlatform();
   var storeUrl = platform === 'android' ? this.storeUrls.android : this.storeUrls.ios;
   
-  window.open(storeUrl, '_blank');
+  window.location.href = storeUrl
 };
 
 // Create a global instance
