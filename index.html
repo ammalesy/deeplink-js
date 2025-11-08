@@ -7,39 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script src="kplus-deeplink.js"></script>
     <div class="container">
         <div class="logo">
             <img src="kplus-icon.png" alt="K PLUS" />
         </div>
         
-        <button class="btn" onclick="testOpenKPlus()">
+        <button class="btn" onclick="openKPlus('PTFMETTRF01FDB906BFC24F46D0808754DC44E76717TRF', 'transferwithkplus');">
             เปิด K PLUS
         </button>
     </div>
-
-    <script src="kplus-deeplink.js"></script>
-    <script>
-        // ทดสอบเปิด K PLUS แบบง่าย ๆ
-        function testOpenKPlus() {
-            var token = 'PTFMETTRF01FDB906BFC24F46D0808754DC44E76717TRF'; // Sample token
-            var nextAction = 'transferwithkplus'; // Sample nextAction
-            
-            try {
-                // เรียกใช้งานแบบง่าย ๆ ส่ง token และ nextAction
-                openKPlus(token, nextAction);
-                
-                if (console && console.log) {
-                    console.log('เรียกใช้ K PLUS Deep Link สำเร็จ');
-                    console.log('Token:', token);
-                    console.log('NextAction:', nextAction);
-                }
-                
-            } catch (error) {
-                if (console && console.error) {
-                    console.error('เกิดข้อผิดพลาด:', error.message);
-                }
-            }
-        }
-    </script>
 </body>
 </html>
