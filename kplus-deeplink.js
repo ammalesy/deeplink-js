@@ -47,8 +47,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
   // If useDeepLink is specified and deep link is enabled, try deep link first
   if (this.deepLinkEnabled) {
     var self = this;
-    var deepLinkUrl = 'kbank.kplus://' + encodeURIComponent(nextAction) + '?tokenId=' + encodeURIComponent(token);
-    
+    var deepLinkUrl = 'kbank.kplus://' + encodeURIComponent(nextAction) + '?tokenId=' + encodeURIComponent(token) + '&nextAction=' + encodeURIComponent(nextAction);
+
     // Try to open deep link
     var startTime = Date.now();
     var timeout = setTimeout(function() {
