@@ -5,8 +5,8 @@
  */
 
 function KPlusDeepLinkHandler() {
-  //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&ios_link=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
-  this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
+  this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&ios_link=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
+  //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
   //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&ios_link=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
   this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
   this.fallbackUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
@@ -79,20 +79,20 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
   
   if (this.isHuaweiDevice()) {
     // For Huawei devices, replace placeholders in the URL
-    // fullUrl = this.huaweiUrl
-      // .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
-      // .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
-    baseUrl = this.huaweiUrl;
+    fullUrl = this.huaweiUrl
+      .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
+      .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
+    // baseUrl = this.huaweiUrl;
   } else {
     baseUrl = this.generalUrl;
-   
+    // Check if URL already has query parameters
+    var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+
+    // Build full URL with parameters
+    fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
   }
 
-  // Check if URL already has query parameters
-  var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
-
-  // Build full URL with parameters
-  fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
+  
   
   // Try to open the web URL
   window.location.href = fullUrl;
