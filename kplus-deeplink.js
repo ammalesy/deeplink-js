@@ -79,16 +79,20 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
   
   if (this.isHuaweiDevice()) {
     // For Huawei devices, replace placeholders in the URL
-    fullUrl = this.huaweiUrl
-      .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
-      .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
+    // fullUrl = this.huaweiUrl
+      // .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
+      // .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
+    baseUrl = this.huaweiUrl;
   } else {
     baseUrl = this.generalUrl;
-    // Check if URL already has query parameters
-    var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
-    // Build full URL with parameters
-    fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
+   
   }
+
+  // Check if URL already has query parameters
+  var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+
+  // Build full URL with parameters
+  fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
   
   // Try to open the web URL
   window.location.href = fullUrl;
