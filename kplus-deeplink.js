@@ -6,12 +6,11 @@
 
 function KPlusDeepLinkHandler() {
   this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
-  //"https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&ios_link=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
   //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
-  //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&ios_link=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
   this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
   this.fallbackUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
-  this.deepLinkEnabled = false; // Flag to enable/disable deep link functionality
+  this.urlSchemeEnabled = false; // Flag to enable/disable URL scheme functionality
+  this.fallbackDuration = 2500; // Fallback duration in milliseconds
 }
 
 /**
@@ -24,11 +23,11 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 };
 
 /**
- * Enable or disable deep link functionality
- * @param {boolean} enabled - true to enable deep link, false to disable
+ * Enable or disable URL scheme functionality
+ * @param {boolean} enabled - true to enable URL scheme, false to disable
  */
-KPlusDeepLinkHandler.prototype.setDeepLinkEnabled = function(enabled) {
-  this.deepLinkEnabled = enabled;
+KPlusDeepLinkHandler.prototype.setUrlSchemeEnabled = function(enabled) {
+  this.urlSchemeEnabled = enabled;
 };
 
 /**
@@ -45,8 +44,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
     throw new Error('NextAction is required');
   }
 
-  // If useDeepLink is specified and deep link is enabled, try deep link first
-  if (this.deepLinkEnabled) {
+  // If URL scheme is enabled, try URL scheme first
+  if (this.urlSchemeEnabled) {
     var self = this;
     var deepLinkUrl = 'kbank.kplus://' + encodeURIComponent(nextAction) + '?tokenId=' + encodeURIComponent(token) + '&nextAction=' + encodeURIComponent(nextAction);
 
@@ -55,7 +54,7 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
     var timeout = setTimeout(function() {
       // If deep link failed, fallback to web URL
       window.location.href = self.fallbackUrl;
-    }, 2500);
+    }, this.fallbackDuration);
 
     // Clear timeout if page becomes hidden (deep link worked)
     var handleVisibilityChange = function() {
@@ -112,12 +111,7 @@ window.openKPlus = function(token, nextAction, useDeepLink) {
   return kplusHandler.openKPlusApp(token, nextAction, useDeepLink);
 };
 
-// Global function for deep link with fallback (backward compatibility)
-window.openKPlusDeepLink = function(token, nextAction) {
-  return kplusHandler.openKPlusApp(token, nextAction, true);
-};
-
-// Global function to enable/disable deep link
-window.setKPlusDeepLinkEnabled = function(enabled) {
-  return kplusHandler.setDeepLinkEnabled(enabled);
+// Global function to enable/disable URL scheme
+window.setKPlusUrlSchemeEnabled = function(enabled) {
+  return kplusHandler.setUrlSchemeEnabled(enabled);
 };
