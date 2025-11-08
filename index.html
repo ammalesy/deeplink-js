@@ -8,21 +8,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏦 K PLUS Deep Link</h1>
+        <div class="logo">
+            K+
+        </div>
         
         <button class="btn" onclick="testOpenKPlus()">
-            🚀 เปิด K PLUS
+            เปิด K PLUS
         </button>
-
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee;">
-            <h4 style="color: #2c3e50;">ข้อมูลการทำงาน:</h4>
-            <ul style="color: #666; font-size: 14px;">
-                <li>จะพยายามเปิดแอป K PLUS ผ่าน deep link</li>
-                <li>หากไม่สำเร็จจะเปิด App Store อัตโนมัติ</li>
-                <li>iOS: App Store (id361170631)</li>
-                <li>Android: Play Store (com.kasikorn.retail.mbanking.wap)</li>
-            </ul>
-        </div>
     </div>
 
     <script src="kplus-deeplink.js"></script>
@@ -47,11 +39,6 @@
                     console.error('เกิดข้อผิดพลาด:', error.message);
                 }
             }
-        }
-
-        // Log ตัวอย่างการใช้งาน
-        if (console && console.log) {
-            console.log('🏦 K PLUS Deep Link Handler - Ready to use');
         }
     </script>
 </body>
