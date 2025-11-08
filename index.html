@@ -28,16 +28,9 @@
             // Get query parameters from URL using traditional method
             const token = getQueryParam('token');
             const nextAction = getQueryParam('nextAction');
-            
-            // Use default values if parameters are not provided
-            const defaultToken = 'PTFMETTRF01FDB906BFC24F46D0808754DC44E76717TRF';
-            const defaultNextAction = 'authenwithkplus';
-            
-            const finalToken = token || defaultToken;
-            const finalNextAction = nextAction || defaultNextAction;
-            
+
             // Call the openKPlus function with parameters
-            openKPlus(finalToken, finalNextAction);
+            openKPlus(token, nextAction);
         }
     </script>
 </body>

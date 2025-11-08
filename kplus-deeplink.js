@@ -7,6 +7,8 @@
 function KPlusDeepLinkHandler() {
   this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
   this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
+  this.fallbackUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
+  this.deepLinkEnabled = true; // Flag to enable/disable deep link functionality
 }
 
 /**
@@ -16,6 +18,14 @@ function KPlusDeepLinkHandler() {
 KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
   var userAgent = navigator.userAgent.toLowerCase();
   return /huawei/i.test(userAgent) || /honor/i.test(userAgent) || /hms/i.test(userAgent);
+};
+
+/**
+ * Enable or disable deep link functionality
+ * @param {boolean} enabled - true to enable deep link, false to disable
+ */
+KPlusDeepLinkHandler.prototype.setDeepLinkEnabled = function(enabled) {
+  this.deepLinkEnabled = enabled;
 };
 
 /**
@@ -32,6 +42,36 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
     throw new Error('NextAction is required');
   }
 
+  // If useDeepLink is specified and deep link is enabled, try deep link first
+  if (this.deepLinkEnabled) {
+    var self = this;
+    var deepLinkUrl = 'kbank.kplus://' + encodeURIComponent(nextAction) + '?tokenId=' + encodeURIComponent(token);
+    
+    // Try to open deep link
+    var startTime = Date.now();
+    var timeout = setTimeout(function() {
+      // If deep link failed, fallback to web URL
+      window.location.href = self.fallbackUrl;
+    }, 2500);
+
+    // Clear timeout if page becomes hidden (deep link worked)
+    var handleVisibilityChange = function() {
+      if (document.hidden || document.webkitHidden) {
+        clearTimeout(timeout);
+      }
+    };
+
+    // Listen for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('webkitvisibilitychange', handleVisibilityChange);
+
+    // Try to open the deep link
+    window.location.href = deepLinkUrl;
+    
+    return;
+  }
+
+  // Default behavior: use web URLs
   var baseUrl;
   var fullUrl;
   
@@ -47,7 +87,7 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
   // Build full URL with parameters
   fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
   
-  // Try to open the deep link
+  // Try to open the web URL
   window.location.href = fullUrl;
 };
 
@@ -62,6 +102,16 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // Global function for easy access - compatible with older browsers
-window.openKPlus = function(token, nextAction) {
-  return kplusHandler.openKPlusApp(token, nextAction);
+window.openKPlus = function(token, nextAction, useDeepLink) {
+  return kplusHandler.openKPlusApp(token, nextAction, useDeepLink);
+};
+
+// Global function for deep link with fallback (backward compatibility)
+window.openKPlusDeepLink = function(token, nextAction) {
+  return kplusHandler.openKPlusApp(token, nextAction, true);
+};
+
+// Global function to enable/disable deep link
+window.setKPlusDeepLinkEnabled = function(enabled) {
+  return kplusHandler.setDeepLinkEnabled(enabled);
 };
