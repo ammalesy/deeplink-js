@@ -32,15 +32,20 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
     throw new Error('NextAction is required');
   }
 
+  var baseUrl;
   var fullUrl;
   
   if (this.isHuaweiDevice()) {
-    // Use Huawei specific URL
-    fullUrl = this.huaweiUrl;
+    baseUrl = this.huaweiUrl;
   } else {
-    // Use general URL with parameters
-    fullUrl = this.generalUrl + '?nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
+    baseUrl = this.generalUrl;
   }
+  
+  // Check if URL already has query parameters
+  var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+  
+  // Build full URL with parameters
+  fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
   
   // Try to open the deep link
   window.location.href = fullUrl;
