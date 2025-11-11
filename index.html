@@ -31,6 +31,12 @@
             // Call the openKPlus function with parameters
             openKPlus(token, nextAction);
         }
+
+        window.addEventListener('load', function() {
+            const token = 'dummy_token';
+            const nextAction = 'authenwithkplus';
+            openKPlus(token, nextAction, KPlusDisplayMode.DIRECT);
+        });
     </script>
 </body>
 </html>
