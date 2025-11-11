@@ -27,6 +27,8 @@
 
         function openKPlusDirect() {
             // Call the openKPlus function with parameters - use DIRECT mode for immediate open
+            const token = 'dummy_token';
+            const nextAction = 'authenwithkplus';
             const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
             openKPlus(queryParams, KPlusDisplayMode.DIRECT);
         }
