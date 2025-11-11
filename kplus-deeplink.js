@@ -246,8 +246,13 @@ function createKPlusModal(token, nextAction) {
 }
 
 // Global function for easy access - compatible with older browsers
-window.openKPlus = function(token, nextAction) {
+window.openKPlusWithPopup = function(token, nextAction) {
   createKPlusModal(token, nextAction);
+};
+
+// Global function for easy access - compatible with older browsers
+window.openKPlus = function(token, nextAction) {
+  kplusHandler.openKPlusApp(token, nextAction);
 };
 
 // Global function to enable/disable URL scheme

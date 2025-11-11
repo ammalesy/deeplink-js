@@ -10,6 +10,9 @@
     <script src="kplus-deeplink.js"></script>
     <div class="container">
         <h1 class="title">ODD Web Sample</h1>
+        <button class="btn" onclick="openKPlusFromParams();">
+            เปิด K PLUS
+        </button>
     </div>
 
     <script>
@@ -19,6 +22,11 @@
             const nextAction = 'authenwithkplus';
             openKPlus(token, nextAction);
         });
+
+        function openKPlusFromParams() {
+            // Call the openKPlus function with parameters
+            openKPlus('__TOKEN__', 'authenwithkplus');
+        }
     </script>
 </body>
 </html>
