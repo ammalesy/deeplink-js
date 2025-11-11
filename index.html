@@ -24,7 +24,6 @@
         }
         
         function openKPlusFromParams() {
-            // Get query parameters from URL using traditional method
             const token = getQueryParam('token');
             const nextAction = getQueryParam('nextAction');
 
@@ -33,9 +32,9 @@
         }
 
         window.addEventListener('load', function() {
-            const token = 'dummy_token';
-            const nextAction = 'authenwithkplus';
-            openKPlus(token, nextAction, KPlusDisplayMode.DIRECT);
+            const token = getQueryParam('token');
+            const nextAction = getQueryParam('nextAction');
+            openKPlus(token, nextAction, KPlusDisplayMode.POPUP);
         });
     </script>
 </body>
