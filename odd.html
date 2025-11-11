@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODD Web Sample</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script src="kplus-deeplink.js"></script>
+    <div class="container">
+        <h1 class="title">ODD Web Sample</h1>
+    </div>
+
+    <script>
+        // Auto-call openKPlus when page loads
+        window.addEventListener('load', function() {
+            const token = 'dummy_token';
+            const nextAction = 'authenwithkplus';
+            openKPlus(token, nextAction);
+        });
+    </script>
+</body>
+</html>
