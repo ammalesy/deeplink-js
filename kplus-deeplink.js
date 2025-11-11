@@ -106,9 +106,148 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { KPlusDeepLinkHandler: KPlusDeepLinkHandler, kplusHandler: kplusHandler };
 }
 
+// Function to create and show modal
+function createKPlusModal(token, nextAction) {
+  // Create modal overlay
+  var modalOverlay = document.createElement('div');
+  modalOverlay.id = 'kplus-modal-overlay';
+  modalOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  `;
+
+  // Create modal content
+  var modalContent = document.createElement('div');
+  modalContent.style.cssText = `
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+
+  // Create modal title
+  var modalTitle = document.createElement('h3');
+  modalTitle.textContent = 'Open K PLUS App';
+  modalTitle.style.cssText = `
+    margin: 0 0 16px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+  `;
+
+  // Create modal message
+  var modalMessage = document.createElement('p');
+  modalMessage.textContent = 'คุณต้องการเปิดแอป K PLUS หรือไม่?';
+  modalMessage.style.cssText = `
+    margin: 0 0 24px 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+  `;
+
+  // Create button container
+  var buttonContainer = document.createElement('div');
+  buttonContainer.style.cssText = `
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  `;
+
+  // Create Open K PLUS button
+  var openButton = document.createElement('button');
+  openButton.textContent = 'Open K PLUS';
+  openButton.style.cssText = `
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  `;
+  
+  // Add hover effect for Open button
+  openButton.onmouseover = function() {
+    this.style.backgroundColor = '#1565c0';
+  };
+  openButton.onmouseout = function() {
+    this.style.backgroundColor = '#1976d2';
+  };
+
+  // Create Close button
+  var closeButton = document.createElement('button');
+  closeButton.textContent = 'Close';
+  closeButton.style.cssText = `
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  `;
+  
+  // Add hover effect for Close button
+  closeButton.onmouseover = function() {
+    this.style.backgroundColor = '#e8e8e8';
+  };
+  closeButton.onmouseout = function() {
+    this.style.backgroundColor = '#f5f5f5';
+  };
+
+  // Function to close modal
+  function closeModal() {
+    if (modalOverlay.parentNode) {
+      modalOverlay.parentNode.removeChild(modalOverlay);
+    }
+  }
+
+  // Add event listeners
+  openButton.onclick = function() {
+    closeModal();
+    kplusHandler.openKPlusApp(token, nextAction);
+  };
+
+  closeButton.onclick = closeModal;
+
+  // Close modal when clicking outside
+  modalOverlay.onclick = function(e) {
+    if (e.target === modalOverlay) {
+      closeModal();
+    }
+  };
+
+  // Assemble modal
+  buttonContainer.appendChild(openButton);
+  buttonContainer.appendChild(closeButton);
+  modalContent.appendChild(modalTitle);
+  modalContent.appendChild(modalMessage);
+  modalContent.appendChild(buttonContainer);
+  modalOverlay.appendChild(modalContent);
+
+  // Add to document
+  document.body.appendChild(modalOverlay);
+}
+
 // Global function for easy access - compatible with older browsers
-window.openKPlus = function(token, nextAction, useDeepLink) {
-  return kplusHandler.openKPlusApp(token, nextAction, useDeepLink);
+window.openKPlus = function(token, nextAction) {
+  createKPlusModal(token, nextAction);
 };
 
 // Global function to enable/disable URL scheme
