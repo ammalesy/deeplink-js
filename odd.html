@@ -10,22 +10,22 @@
     <script src="kplus-deeplink.js"></script>
     <div class="container">
         <h1 class="title">ODD Web Sample</h1>
-        <button class="btn" onclick="openKPlusFromParams();">
+        <button class="btn" onclick="openKPlusDirect();">
             เปิด K PLUS
         </button>
     </div>
 
     <script>
-        // Auto-call openKPlus when page loads
+        // Auto-call openKPlus when page loads - use POPUP mode
         window.addEventListener('load', function() {
             const token = 'dummy_token';
             const nextAction = 'authenwithkplus';
-            openKPlus(token, nextAction);
+            openKPlus(token, nextAction, KPlusDisplayMode.POPUP);
         });
 
-        function openKPlusFromParams() {
-            // Call the openKPlus function with parameters
-            openKPlus('__TOKEN__', 'authenwithkplus');
+        function openKPlusDirect() {
+            // Call the openKPlus function with parameters - use DIRECT mode for immediate open
+            openKPlus('dummy_token', 'authenwithkplus', KPlusDisplayMode.DIRECT);
         }
     </script>
 </body>

@@ -21,11 +21,30 @@ JavaScript library สำหรับเปิดแอป K PLUS ผ่าน d
 ### วิธีง่าย ๆ (แนะนำ)
 
 ```javascript
-// วิธีง่ายที่สุด - เปิด K PLUS และจัดการ fallback อัตโนมัติ
-openKPlus('your-token');
+// เปิด K PLUS แบบ Direct (default) - เปิดแอปโดยตรง
+openKPlus('your-token', 'your-next-action');
 
-// กำหนดเวลารอก่อน fallback (default: 2500ms)
-openKPlus('your-token', 5000);
+// เปิด K PLUS แบบ Popup - แสดง popup ก่อนเปิดแอป
+openKPlus('your-token', 'your-next-action', KPlusDisplayMode.POPUP);
+
+// หรือใช้ค่า string โดยตรง
+openKPlus('your-token', 'your-next-action', 'POPUP');
+openKPlus('your-token', 'your-next-action', 'DIRECT');
+```
+
+### Display Mode Constants
+
+```javascript
+// ใช้ constants ที่กำหนดไว้แล้ว
+KPlusDisplayMode.DIRECT  // เปิดแอปโดยตรง (default)
+KPlusDisplayMode.POPUP   // แสดง popup ก่อนเปิดแอป
+```
+
+### Backward Compatibility
+
+```javascript
+// ฟังก์ชันเดิมยังใช้งานได้ (จะใช้ POPUP mode)
+openKPlusWithPopup('your-token', 'your-next-action');
 ```
 
 ### การใช้งานแบบ Advanced

@@ -245,17 +245,21 @@ function createKPlusModal(token, nextAction) {
   document.body.appendChild(modalOverlay);
 }
 
-// Global function for easy access - compatible with older browsers
-window.openKPlusWithPopup = function(token, nextAction) {
-  createKPlusModal(token, nextAction);
+// Display mode constants
+window.KPlusDisplayMode = {
+  POPUP: 'POPUP',
+  DIRECT: 'DIRECT'
 };
 
 // Global function for easy access - compatible with older browsers
-window.openKPlus = function(token, nextAction) {
-  kplusHandler.openKPlusApp(token, nextAction);
-};
-
-// Global function to enable/disable URL scheme
-window.setKPlusUrlSchemeEnabled = function(enabled) {
-  return kplusHandler.setUrlSchemeEnabled(enabled);
+// displayMode: 'POPUP' for modal popup, 'DIRECT' for direct navigation (default)
+window.openKPlus = function(token, nextAction, displayMode) {
+  // Default to DIRECT if displayMode is not provided
+  displayMode = displayMode || window.KPlusDisplayMode.DIRECT;
+  
+  if (displayMode === window.KPlusDisplayMode.POPUP) {
+    createKPlusModal(token, nextAction);
+  } else {
+    kplusHandler.openKPlusApp(token, nextAction);
+  }
 };
