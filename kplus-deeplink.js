@@ -8,9 +8,6 @@ function KPlusDeepLinkHandler() {
   this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
   //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
   this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
-  this.fallbackUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
-  this.urlSchemeEnabled = false; // Flag to enable/disable URL scheme functionality
-  this.fallbackDuration = 2500; // Fallback duration in milliseconds
 }
 
 /**
@@ -23,57 +20,70 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 };
 
 /**
- * Enable or disable URL scheme functionality
- * @param {boolean} enabled - true to enable URL scheme, false to disable
+ * Parse query parameters from a query string
+ * @param {string} queryString - Query string (e.g., "?nextAction=authenwithkplus&tokenId=xxxx")
+ * @returns {Object} Object containing parsed parameters
  */
-KPlusDeepLinkHandler.prototype.setUrlSchemeEnabled = function(enabled) {
-  this.urlSchemeEnabled = enabled;
+KPlusDeepLinkHandler.prototype.parseQueryParams = function(queryString) {
+  var params = {};
+  var queryStr = queryString;
+  
+  // Remove leading '?' if present
+  if (queryStr.charAt(0) === '?') {
+    queryStr = queryStr.substring(1);
+  }
+  
+  if (queryStr) {
+    var pairs = queryStr.split('&');
+    for (var i = 0; i < pairs.length; i++) {
+      var pair = pairs[i].split('=');
+      if (pair.length === 2) {
+        params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+      }
+    }
+  }
+  
+  return params;
 };
 
 /**
- * Open K PLUS app with authentication token
- * @param {string} token - Authentication token to be passed to the app (required)
- * @param {string} nextAction - Next action parameter (required)
+ * Build query string from parameters object
+ * @param {Object} params - Parameters object
+ * @returns {string} Query string (without leading '?')
  */
-KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
+KPlusDeepLinkHandler.prototype.buildQueryString = function(params) {
+  var pairs = [];
+  for (var key in params) {
+    if (params.hasOwnProperty(key)) {
+      pairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+    }
+  }
+  return pairs.join('&');
+};
+
+/**
+ * Open K PLUS app with query parameters
+ * @param {string} queryParams - Query parameters string (e.g., "?nextAction=authenwithkplus&tokenId=xxxx")
+ */
+KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
+  if (!queryParams) {
+    throw new Error('QueryParams is required');
+  }
+
+  // Parse query parameters
+  var params = this.parseQueryParams(queryParams);
+  var token = params.tokenId;
+  var nextAction = params.nextAction;
+
   if (!token) {
-    throw new Error('Token is required');
+    throw new Error('tokenId parameter is required in queryParams');
   }
 
   if (!nextAction) {
-    throw new Error('NextAction is required');
+    throw new Error('nextAction parameter is required in queryParams');
   }
 
-  // If URL scheme is enabled, try URL scheme first
-  if (this.urlSchemeEnabled) {
-    var self = this;
-    var deepLinkUrl = 'kbank.kplus://' + encodeURIComponent(nextAction) + '?tokenId=' + encodeURIComponent(token) + '&nextAction=' + encodeURIComponent(nextAction);
-
-    // Try to open deep link
-    var startTime = Date.now();
-    var timeout = setTimeout(function() {
-      // If deep link failed, fallback to web URL
-      window.location.href = self.fallbackUrl;
-    }, this.fallbackDuration);
-
-    // Clear timeout if page becomes hidden (deep link worked)
-    var handleVisibilityChange = function() {
-      if (document.hidden || document.webkitHidden) {
-        clearTimeout(timeout);
-      }
-    };
-
-    // Listen for visibility changes
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    document.addEventListener('webkitvisibilitychange', handleVisibilityChange);
-
-    // Try to open the deep link
-    window.location.href = deepLinkUrl;
-    
-    return;
-  }
-
-  // Default behavior: use web URLs
+  // Use web URLs
   var baseUrl;
   var fullUrl;
   
@@ -82,21 +92,19 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(token, nextAction) {
     fullUrl = this.huaweiUrl
       .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
       .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
-    // baseUrl = this.huaweiUrl;
   } else {
     baseUrl = this.generalUrl;
     // Check if URL already has query parameters
     var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
 
-    // Build full URL with parameters
-    fullUrl = baseUrl + separator + 'nextAction=' + encodeURIComponent(nextAction) + '&tokenId=' + encodeURIComponent(token);
+    // Build full URL with all parameters
+    var queryString = this.buildQueryString(params);
+    fullUrl = baseUrl + separator + queryString;
   }
   
   // Try to open the web URL
   window.location.href = fullUrl;
 };
-
-
 
 // Create a global instance
 var kplusHandler = new KPlusDeepLinkHandler();
@@ -107,7 +115,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // Function to create and show modal
-function createKPlusModal(token, nextAction) {
+function createKPlusModal(queryParams) {
   // Create modal overlay
   var modalOverlay = document.createElement('div');
   modalOverlay.id = 'kplus-modal-overlay';
@@ -221,7 +229,7 @@ function createKPlusModal(token, nextAction) {
   // Add event listeners
   openButton.onclick = function() {
     closeModal();
-    kplusHandler.openKPlusApp(token, nextAction);
+    kplusHandler.openKPlusApp(queryParams);
   };
 
   closeButton.onclick = closeModal;
@@ -253,13 +261,13 @@ window.KPlusDisplayMode = {
 
 // Global function for easy access - compatible with older browsers
 // displayMode: 'POPUP' for modal popup, 'DIRECT' for direct navigation (default)
-window.openKPlus = function(token, nextAction, displayMode) {
+window.openKPlus = function(queryParams, displayMode) {
   // Default to DIRECT if displayMode is not provided
   displayMode = displayMode || window.KPlusDisplayMode.DIRECT;
   
   if (displayMode === window.KPlusDisplayMode.POPUP) {
-    createKPlusModal(token, nextAction);
+    createKPlusModal(queryParams);
   } else {
-    kplusHandler.openKPlusApp(token, nextAction);
+    kplusHandler.openKPlusApp(queryParams);
   }
 };

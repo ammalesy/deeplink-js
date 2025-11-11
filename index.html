@@ -26,15 +26,15 @@
         function openKPlusFromParams() {
             const token = getQueryParam('token');
             const nextAction = getQueryParam('nextAction');
-
-            // Call the openKPlus function with parameters
-            openKPlus(token, nextAction);
+            const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
+            openKPlus(queryParams);
         }
 
         window.addEventListener('load', function() {
             const token = getQueryParam('token');
             const nextAction = getQueryParam('nextAction');
-            openKPlus(token, nextAction, KPlusDisplayMode.POPUP);
+            const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
+            openKPlus(queryParams, KPlusDisplayMode.POPUP);
         });
     </script>
 </body>

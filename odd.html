@@ -21,12 +21,14 @@
         window.addEventListener('load', function() {
             const token = 'dummy_token';
             const nextAction = 'authenwithkplus';
-            openKPlus(token, nextAction, KPlusDisplayMode.POPUP);
+            const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
+            openKPlus(queryParams, KPlusDisplayMode.POPUP);
         });
 
         function openKPlusDirect() {
             // Call the openKPlus function with parameters - use DIRECT mode for immediate open
-            openKPlus('dummy_token', 'authenwithkplus', KPlusDisplayMode.DIRECT);
+            const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
+            openKPlus(queryParams, KPlusDisplayMode.DIRECT);
         }
     </script>
 </body>
