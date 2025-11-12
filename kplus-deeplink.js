@@ -15,6 +15,15 @@ function KPlusDeepLinkHandler() {
 }
 
 /**
+ * Detect if device is Android
+ * @returns {boolean} true if Android device, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isAndroidDevice = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /android/i.test(userAgent);
+};
+
+/**
  * Detect if device is Huawei
  * @returns {boolean} true if Huawei device, false otherwise
  */
@@ -105,8 +114,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   var baseUrl;
   var fullUrl;
   
-  if (this.isSocialApp()) {
-    // For Line/Messenger apps, use URL scheme with fallback
+  if (this.isSocialApp() && (this.isAndroidDevice() || this.isHuaweiDevice())) {
+    // For social apps on Android/Huawei devices, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
     var self = this;
