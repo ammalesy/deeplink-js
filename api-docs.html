@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K PLUS Deep Link Handler API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f5f5f5;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #1976d2;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .method-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .method-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .method-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2e7d32;
+        }
+
+        .method-type {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .method-body {
+            padding: 20px;
+        }
+
+        .description {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .parameters, .returns, .throws {
+            margin-bottom: 20px;
+        }
+
+        .parameters h4, .returns h4, .throws h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .param-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-left: 3px solid #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .param-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .param-type {
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        .param-required {
+            color: #d32f2f;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .example {
+            background: #263238;
+            color: #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 10px;
+            line-height: 1.7;
+            border: 1px solid #37474f;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Syntax highlighting classes */
+        .keyword { color: #c792ea; font-weight: 500; }
+        .string { color: #c3e88d; }
+        .number { color: #f78c6c; }
+        .comment { color: #546e7a; font-style: italic; }
+        .function { color: #82aaff; }
+        .property { color: #ffcb6b; }
+        .operator { color: #89ddff; }
+        .bracket { color: #89ddff; }
+        .tag { color: #f07178; }
+        .attribute { color: #c792ea; }
+        .value { color: #c3e88d; }
+
+        .example-title {
+            color: #1976d2;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .compatibility {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .compatibility h4 {
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        .error-item {
+            background: #ffebee;
+            border-left: 3px solid #f44336;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .error-code {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .toc {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toc h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+            padding: 5px 0;
+            display: block;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .global-instance {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .global-instance h4 {
+            color: #e65100;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .method-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>K PLUS Deep Link Handler</h1>
+            <p>API Documentation - Functions to open K PLUS app with authentication token and handle fallbacks</p>
+        </div>
+
+        <div class="toc">
+            <h3>📖 Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#installation">Installation & Usage</a></li>
+                <li><a href="#constructor">Constructor</a></li>
+                <li><a href="#methods">Methods</a>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li><a href="#isAndroidDevice">isAndroidDevice()</a></li>
+                        <li><a href="#isHuaweiDevice">isHuaweiDevice()</a></li>
+                        <li><a href="#isSocialApp">isSocialApp()</a></li>
+                        <li><a href="#parseQueryParams">parseQueryParams()</a></li>
+                        <li><a href="#buildQueryString">buildQueryString()</a></li>
+                        <li><a href="#openKPlusApp">openKPlusApp()</a></li>
+                    </ul>
+                </li>
+                <li><a href="#global-functions">Global Functions</a>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li><a href="#openKPlus">openKPlus()</a></li>
+                        <li><a href="#createKPlusModal">createKPlusModal()</a></li>
+                    </ul>
+                </li>
+                <li><a href="#constants">Constants</a></li>
+                <li><a href="#examples">Usage Examples</a></li>
+            </ul>
+        </div>
+
+        <div class="section" id="overview">
+            <div class="section-header">🚀 Overview</div>
+            <div class="section-content">
+                <p>The K PLUS Deep Link Handler is a JavaScript library designed to seamlessly open the K PLUS mobile banking application with authentication tokens. It provides intelligent fallback mechanisms and device-specific handling for optimal user experience across different platforms and browsers.</p>
+                
+                <div class="compatibility">
+                    <h4>🎯 Compatibility</h4>
+                    <ul>
+                        <li>✅ Safari iOS 15+</li>
+                        <li>✅ Android 10+ browsers</li>
+                        <li>✅ Huawei devices with HMS</li>
+                        <li>✅ Social media in-app browsers (Line, Messenger, Facebook)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="installation">
+            <div class="section-header">📦 Installation & Usage</div>
+            <div class="section-content">
+                <div class="example-title">Include in HTML:</div>
+                <div class="example"><span class="tag">&lt;script</span> <span class="attribute">src</span><span class="operator">=</span><span class="string">"kplus-deeplink.js"</span><span class="tag">&gt;&lt;/script&gt;</span></div>
+                
+                <div class="example-title">Or import in Node.js:</div>
+                <div class="example"><span class="keyword">const</span> { <span class="property">KPlusDeepLinkHandler</span>, <span class="property">kplusHandler</span> } <span class="operator">=</span> <span class="function">require</span><span class="bracket">(</span><span class="string">'./kplus-deeplink.js'</span><span class="bracket">)</span>;</div>
+
+                <div class="global-instance">
+                    <h4>🌍 Global Instance Available</h4>
+                    <p>A global instance <code>kplusHandler</code> is automatically created and available for immediate use.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="constructor">
+            <div class="section-header">🏗️ Constructor</div>
+            <div class="section-content">
+                <div class="method-card">
+                    <div class="method-header">
+                        <span class="method-name">new KPlusDeepLinkHandler()</span>
+                        <span class="method-type">Constructor</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Creates a new instance of the K PLUS Deep Link Handler with predefined configuration for different device types and environments.
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📝 Properties Initialized:</h4>
+                            <div class="param-item">
+                                <span class="param-name">huaweiUrl</span> <span class="param-type">string</span><br>
+                                Huawei App Gallery deep link URL with placeholder tokens
+                            </div>
+                            <div class="param-item">
+                                <span class="param-name">generalUrl</span> <span class="param-type">string</span><br>
+                                General fallback URL for web browsers
+                            </div>
+                            <div class="param-item">
+                                <span class="param-name">fallbackDuration</span> <span class="param-type">number</span><br>
+                                Duration to wait before fallback (3000ms)
+                            </div>
+                            <div class="param-item">
+                                <span class="param-name">scheme</span> <span class="param-type">string</span><br>
+                                URL scheme for K PLUS app ('kbank.kplus://')
+                            </div>
+                            <div class="param-item">
+                                <span class="param-name">socialApps</span> <span class="param-type">array</span><br>
+                                Array of social app identifiers ['line', 'messenger', 'fban', 'fbav']
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="keyword">const</span> <span class="property">handler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="function">KPlusDeepLinkHandler</span><span class="bracket">()</span>;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="methods">
+            <div class="section-header">⚙️ Methods</div>
+            <div class="section-content">
+                
+                <div class="method-card" id="isAndroidDevice">
+                    <div class="method-header">
+                        <span class="method-name">isAndroidDevice()</span>
+                        <span class="method-type">Method</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Detects if the current device is running Android by analyzing the user agent string.
+                        </div>
+                        
+                        <div class="returns">
+                            <h4>↩️ Returns:</h4>
+                            <div class="param-item">
+                                <span class="param-type">boolean</span> - <code>true</code> if Android device, <code>false</code> otherwise
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="keyword">const</span> <span class="property">isAndroid</span> <span class="operator">=</span> <span class="property">kplusHandler</span>.<span class="function">isAndroidDevice</span><span class="bracket">()</span>;
+<span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="property">isAndroid</span><span class="bracket">)</span>; <span class="comment">// true or false</span></div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="isHuaweiDevice">
+                    <div class="method-header">
+                        <span class="method-name">isHuaweiDevice()</span>
+                        <span class="method-type">Method</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Detects if the current device is a Huawei device by checking for Huawei, Honor, or HMS identifiers in the user agent.
+                        </div>
+                        
+                        <div class="returns">
+                            <h4>↩️ Returns:</h4>
+                            <div class="param-item">
+                                <span class="param-type">boolean</span> - <code>true</code> if Huawei device, <code>false</code> otherwise
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="keyword">const</span> <span class="property">isHuawei</span> <span class="operator">=</span> <span class="property">kplusHandler</span>.<span class="function">isHuaweiDevice</span><span class="bracket">()</span>;
+<span class="keyword">if</span> <span class="bracket">(</span><span class="property">isHuawei</span><span class="bracket">)</span> <span class="bracket">{</span>
+    <span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="string">'Using Huawei-specific deep link'</span><span class="bracket">)</span>;
+<span class="bracket">}</span></div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="isSocialApp">
+                    <div class="method-header">
+                        <span class="method-name">isSocialApp()</span>
+                        <span class="method-type">Method</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Detects if the current browser is running inside a social media application (Line, Messenger, Facebook, etc.).
+                        </div>
+                        
+                        <div class="returns">
+                            <h4>↩️ Returns:</h4>
+                            <div class="param-item">
+                                <span class="param-type">boolean</span> - <code>true</code> if social media app, <code>false</code> otherwise
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="keyword">const</span> <span class="property">isSocial</span> <span class="operator">=</span> <span class="property">kplusHandler</span>.<span class="function">isSocialApp</span><span class="bracket">()</span>;
+<span class="keyword">if</span> <span class="bracket">(</span><span class="property">isSocial</span><span class="bracket">)</span> <span class="bracket">{</span>
+    <span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="string">'Running inside social media app'</span><span class="bracket">)</span>;
+<span class="bracket">}</span></div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="parseQueryParams">
+                    <div class="method-header">
+                        <span class="method-name">parseQueryParams(queryString)</span>
+                        <span class="method-type">Method</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Parses a query string into an object with decoded parameter names and values.
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📥 Parameters:</h4>
+                            <div class="param-item">
+                                <span class="param-name">queryString</span> <span class="param-type">string</span> <span class="param-required">required</span><br>
+                                Query string to parse (e.g., "?nextAction=authenwithkplus&tokenId=xxxx")
+                            </div>
+                        </div>
+
+                        <div class="returns">
+                            <h4>↩️ Returns:</h4>
+                            <div class="param-item">
+                                <span class="param-type">Object</span> - Object containing parsed parameters with decoded keys and values
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="keyword">const</span> <span class="property">params</span> <span class="operator">=</span> <span class="property">kplusHandler</span>.<span class="function">parseQueryParams</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span><span class="bracket">)</span>;
+<span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="property">params</span><span class="bracket">)</span>;
+<span class="comment">// Output: { nextAction: "authenwithkplus", tokenId: "abc123" }</span></div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="buildQueryString">
+                    <div class="method-header">
+                        <span class="method-name">buildQueryString(params)</span>
+                        <span class="method-type">Method</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Builds a URL-encoded query string from a parameters object.
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📥 Parameters:</h4>
+                            <div class="param-item">
+                                <span class="param-name">params</span> <span class="param-type">Object</span> <span class="param-required">required</span><br>
+                                Parameters object to convert to query string
+                            </div>
+                        </div>
+
+                        <div class="returns">
+                            <h4>↩️ Returns:</h4>
+                            <div class="param-item">
+                                <span class="param-type">string</span> - URL-encoded query string (without leading '?')
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="keyword">const</span> <span class="property">queryString</span> <span class="operator">=</span> <span class="property">kplusHandler</span>.<span class="function">buildQueryString</span><span class="bracket">({</span>
+    <span class="property">nextAction</span><span class="operator">:</span> <span class="string">"authenwithkplus"</span>,
+    <span class="property">tokenId</span><span class="operator">:</span> <span class="string">"abc123"</span>,
+    <span class="property">userId</span><span class="operator">:</span> <span class="string">"user@example.com"</span>
+<span class="bracket">})</span>;
+<span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="property">queryString</span><span class="bracket">)</span>;
+<span class="comment">// Output: "nextAction=authenwithkplus&tokenId=abc123&userId=user%40example.com"</span></div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="openKPlusApp">
+                    <div class="method-header">
+                        <span class="method-name">openKPlusApp(queryParams)</span>
+                        <span class="method-type">Method</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Opens the K PLUS app with the provided authentication parameters. Automatically detects the device type and browser environment to choose the optimal opening method.
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📥 Parameters:</h4>
+                            <div class="param-item">
+                                <span class="param-name">queryParams</span> <span class="param-type">string</span> <span class="param-required">required</span><br>
+                                Query parameters string containing at least <code>tokenId</code> and <code>nextAction</code>
+                            </div>
+                        </div>
+
+                        <div class="throws">
+                            <h4>⚠️ Throws:</h4>
+                            <div class="error-item">
+                                <span class="error-code">Error</span> - "QueryParams is required" if queryParams is null/undefined
+                            </div>
+                            <div class="error-item">
+                                <span class="error-code">Error</span> - "tokenId parameter is required in queryParams" if tokenId is missing
+                            </div>
+                            <div class="error-item">
+                                <span class="error-code">Error</span> - "nextAction parameter is required in queryParams" if nextAction is missing
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="comment">// Basic usage</span>
+<span class="property">kplusHandler</span>.<span class="function">openKPlusApp</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span><span class="bracket">)</span>;
+
+<span class="comment">// With additional parameters</span>
+<span class="property">kplusHandler</span>.<span class="function">openKPlusApp</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123&userId=user123"</span><span class="bracket">)</span>;
+
+<span class="comment">// Error handling</span>
+<span class="keyword">try</span> <span class="bracket">{</span>
+    <span class="property">kplusHandler</span>.<span class="function">openKPlusApp</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span><span class="bracket">)</span>;
+<span class="bracket">}</span> <span class="keyword">catch</span> <span class="bracket">(</span><span class="property">error</span><span class="bracket">)</span> <span class="bracket">{</span>
+    <span class="property">console</span>.<span class="function">error</span><span class="bracket">(</span><span class="string">'Failed to open K PLUS app:'</span>, <span class="property">error</span>.<span class="property">message</span><span class="bracket">)</span>;
+<span class="bracket">}</span></div>
+
+                        <div class="compatibility">
+                            <h4>🔄 Behavior by Platform:</h4>
+                            <ul>
+                                <li><strong>Social Apps + Android/Huawei:</strong> Uses URL scheme with fallback mechanism</li>
+                                <li><strong>Huawei Devices:</strong> Uses Huawei App Gallery deep link</li>
+                                <li><strong>Other Devices:</strong> Uses general web URL with query parameters</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="section" id="global-functions">
+            <div class="section-header">🌐 Global Functions</div>
+            <div class="section-content">
+                
+                <div class="method-card" id="openKPlus">
+                    <div class="method-header">
+                        <span class="method-name">window.openKPlus(queryParams, displayMode)</span>
+                        <span class="method-type">Global Function</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Global convenience function for opening K PLUS app with optional display mode selection (popup modal or direct navigation).
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📥 Parameters:</h4>
+                            <div class="param-item">
+                                <span class="param-name">queryParams</span> <span class="param-type">string</span> <span class="param-required">required</span><br>
+                                Query parameters string containing authentication tokens
+                            </div>
+                            <div class="param-item">
+                                <span class="param-name">displayMode</span> <span class="param-type">string</span> <span style="color: #888;">optional</span><br>
+                                Display mode: 'POPUP' for modal confirmation, 'DIRECT' for immediate navigation (default)
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="comment">// Direct navigation (default)</span>
+<span class="function">openKPlus</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span><span class="bracket">)</span>;
+
+<span class="comment">// With popup confirmation</span>
+<span class="function">openKPlus</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span>, <span class="property">KPlusDisplayMode</span>.<span class="property">POPUP</span><span class="bracket">)</span>;
+
+<span class="comment">// Using constants</span>
+<span class="function">openKPlus</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span>, <span class="property">window</span>.<span class="property">KPlusDisplayMode</span>.<span class="property">DIRECT</span><span class="bracket">)</span>;</div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="createKPlusModal">
+                    <div class="method-header">
+                        <span class="method-name">createKPlusModal(queryParams)</span>
+                        <span class="method-type">Function</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Creates and displays a modal dialog asking for user confirmation before opening the K PLUS app. Provides a user-friendly interface with Thai language support.
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📥 Parameters:</h4>
+                            <div class="param-item">
+                                <span class="param-name">queryParams</span> <span class="param-type">string</span> <span class="param-required">required</span><br>
+                                Query parameters to pass to the K PLUS app when user confirms
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="comment">// Show confirmation modal</span>
+<span class="function">createKPlusModal</span><span class="bracket">(</span><span class="string">"?nextAction=authenwithkplus&tokenId=abc123"</span><span class="bracket">)</span>;</div>
+
+                        <div class="compatibility">
+                            <h4>✨ Modal Features:</h4>
+                            <ul>
+                                <li>🎨 Modern, responsive design</li>
+                                <li>🇹🇭 Thai language interface</li>
+                                <li>👆 Click outside to close</li>
+                                <li>🎯 Mobile-friendly styling</li>
+                                <li>♿ Accessible keyboard navigation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="section" id="constants">
+            <div class="section-header">🔢 Constants</div>
+            <div class="section-content">
+                <div class="method-card">
+                    <div class="method-header">
+                        <span class="method-name">window.KPlusDisplayMode</span>
+                        <span class="method-type">Constants</span>
+                    </div>
+                    <div class="method-body">
+                        <div class="description">
+                            Display mode constants for controlling how the K PLUS app opening is presented to users.
+                        </div>
+                        
+                        <div class="parameters">
+                            <h4>📋 Available Values:</h4>
+                            <div class="param-item">
+                                <span class="param-name">POPUP</span> <span class="param-type">string</span><br>
+                                Shows a confirmation modal before opening the app
+                            </div>
+                            <div class="param-item">
+                                <span class="param-name">DIRECT</span> <span class="param-type">string</span><br>
+                                Opens the app immediately without confirmation
+                            </div>
+                        </div>
+
+                        <div class="example-title">Example:</div>
+                        <div class="example"><span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="property">window</span>.<span class="property">KPlusDisplayMode</span>.<span class="property">POPUP</span><span class="bracket">)</span>;   <span class="comment">// "POPUP"</span>
+<span class="property">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="property">window</span>.<span class="property">KPlusDisplayMode</span>.<span class="property">DIRECT</span><span class="bracket">)</span>;  <span class="comment">// "DIRECT"</span>
+
+<span class="comment">// Usage with openKPlus function</span>
+<span class="function">openKPlus</span><span class="bracket">(</span><span class="property">queryParams</span>, <span class="property">window</span>.<span class="property">KPlusDisplayMode</span>.<span class="property">POPUP</span><span class="bracket">)</span>;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="examples">
+            <div class="section-header">💡 Usage Examples</div>
+            <div class="section-content">
+                
+                <h4 style="color: #1976d2; margin-bottom: 15px;">🔧 Basic Integration</h4>
+                <div class="example"><span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;title&gt;</span>K PLUS Integration<span class="tag">&lt;/title&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attribute">onclick</span><span class="operator">=</span><span class="string">"openKPlusApp()"</span><span class="tag">&gt;</span>Open K PLUS App<span class="tag">&lt;/button&gt;</span>
+    
+    <span class="tag">&lt;script</span> <span class="attribute">src</span><span class="operator">=</span><span class="string">"kplus-deeplink.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+    <span class="tag">&lt;script&gt;</span>
+        <span class="keyword">function</span> <span class="function">openKPlusApp</span><span class="bracket">()</span> <span class="bracket">{</span>
+            <span class="keyword">const</span> <span class="property">queryParams</span> <span class="operator">=</span> <span class="string">"?nextAction=authenwithkplus&tokenId="</span> <span class="operator">+</span> <span class="function">getUserToken</span><span class="bracket">()</span>;
+            <span class="function">openKPlus</span><span class="bracket">(</span><span class="property">queryParams</span>, <span class="property">window</span>.<span class="property">KPlusDisplayMode</span>.<span class="property">POPUP</span><span class="bracket">)</span>;
+        <span class="bracket">}</span>
+        
+        <span class="keyword">function</span> <span class="function">getUserToken</span><span class="bracket">()</span> <span class="bracket">{</span>
+            <span class="comment">// Your token generation logic here</span>
+            <span class="keyword">return</span> <span class="string">"user_authentication_token_123"</span>;
+        <span class="bracket">}</span>
+    <span class="tag">&lt;/script&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></div>
+
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 30px 0; color: #666; border-top: 1px solid #e0e0e0; margin-top: 30px;">
+            <p>📚 K PLUS Deep Link Handler API Documentation</p>
+            <p style="font-size: 0.9rem; margin-top: 5px;">Compatible with Safari iOS 15+, Android 10+, and Huawei HMS</p>
+        </div>
+    </div>
+</body>
+</html>
