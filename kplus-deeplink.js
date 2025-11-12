@@ -102,8 +102,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
     fullUrl = baseUrl + separator + queryString;
   }
   
-  // Try to open the web URL
-  window.location.href = fullUrl;
+  // Try to open the web URL in a new tab
+  window.open(fullUrl, '_blank');
 };
 
 // Create a global instance
