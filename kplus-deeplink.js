@@ -103,7 +103,7 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   }
   
   // Navigate directly to the URL (works better with app links in in-app browsers)
-  window.open(fullUrl, '_blank');
+  window.location.href = fullUrl;
 };
 
 // Create a global instance
