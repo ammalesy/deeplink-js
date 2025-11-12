@@ -8,6 +8,9 @@ function KPlusDeepLinkHandler() {
   this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
   //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
   this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
+  this.fallbackDuration = 3000; // Duration to wait before fallback (in milliseconds)
+  this.fallbackUrl = 'https://www.kasikornbank.com/th/kplus/deeplinkkplus/';
+  this.scheme = 'kbank.kplus://';
 }
 
 /**
@@ -17,6 +20,15 @@ function KPlusDeepLinkHandler() {
 KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
   var userAgent = navigator.userAgent.toLowerCase();
   return /huawei/i.test(userAgent) || /honor/i.test(userAgent) || /hms/i.test(userAgent);
+};
+
+/**
+ * Detect if running inside Line or Messenger app
+ * @returns {boolean} true if Line or Messenger app, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isLineOrMessengerApp = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /line/i.test(userAgent) || /messenger/i.test(userAgent) || /fban/i.test(userAgent) || /fbav/i.test(userAgent);
 };
 
 /**
@@ -83,11 +95,25 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
     throw new Error('nextAction parameter is required in queryParams');
   }
 
-  // Use web URLs
+  // Use web URLs or URL scheme based on environment
   var baseUrl;
   var fullUrl;
   
-  if (this.isHuaweiDevice()) {
+  if (this.isLineOrMessengerApp()) {
+    // For Line/Messenger apps, use URL scheme with fallback
+    var queryString = this.buildQueryString(params);
+    var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
+    
+    // Try URL scheme first
+    window.location.href = urlScheme;
+    
+    // Fallback to web URL if app is not installed (after a short delay)
+    setTimeout(function() {
+      window.location.href = this.fallbackUrl;
+    }, this.fallbackDuration);
+    
+    return;
+  } else if (this.isHuaweiDevice()) {
     // For Huawei devices, replace placeholders in the URL
     fullUrl = this.huaweiUrl
       .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
