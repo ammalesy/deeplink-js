@@ -11,6 +11,7 @@ function KPlusDeepLinkHandler() {
   this.fallbackDuration = 3000; // Duration to wait before fallback (in milliseconds)
   this.fallbackUrl = 'https://www.kasikornbank.com/th/kplus/deeplinkkplus/';
   this.scheme = 'kbank.kplus://';
+  this.socialApps = ['line', 'messenger', 'fban', 'fbav']; // Array of social app identifiers
 }
 
 /**
@@ -23,12 +24,17 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 };
 
 /**
- * Detect if running inside Line or Messenger app
- * @returns {boolean} true if Line or Messenger app, false otherwise
+ * Detect if running inside social media app (Line, Messenger, etc.)
+ * @returns {boolean} true if social media app, false otherwise
  */
-KPlusDeepLinkHandler.prototype.isLineOrMessengerApp = function() {
+KPlusDeepLinkHandler.prototype.isSocialApp = function() {
   var userAgent = navigator.userAgent.toLowerCase();
-  return /line/i.test(userAgent) || /messenger/i.test(userAgent) || /fban/i.test(userAgent) || /fbav/i.test(userAgent);
+  for (var i = 0; i < this.socialApps.length; i++) {
+    if (userAgent.indexOf(this.socialApps[i].toLowerCase()) !== -1) {
+      return true;
+    }
+  }
+  return false;
 };
 
 /**
@@ -99,7 +105,7 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   var baseUrl;
   var fullUrl;
   
-  if (this.isLineOrMessengerApp()) {
+  if (this.isSocialApp()) {
     // For Line/Messenger apps, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
