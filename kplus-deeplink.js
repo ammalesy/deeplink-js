@@ -103,7 +103,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   }
   
   // Try to open the web URL in a new tab
-  window.open(fullUrl, '_blank');
+  // window.open(fullUrl, '_blank');
+  window.location.href = fullUrl;
 };
 
 // Create a global instance
