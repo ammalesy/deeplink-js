@@ -103,13 +103,31 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
     // For Line/Messenger apps, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
+    var self = this;
+    var hasNavigated = false;
+    
+    // Track if the app successfully opens (page becomes hidden)
+    function onVisibilityChange() {
+      if (document.hidden) {
+        hasNavigated = true;
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
+    }
+    
+    // Listen for page visibility changes
+    document.addEventListener('visibilitychange', onVisibilityChange);
     
     // Try URL scheme first
     window.location.href = urlScheme;
     
-    // Fallback to web URL if app is not installed (after a short delay)
+    // Fallback to web URL if app is not installed (after a delay)
     setTimeout(function() {
-      window.location.href = this.fallbackUrl;
+      // Only fallback if the app didn't open successfully
+      if (!hasNavigated) {
+        window.location.href = self.fallbackUrl;
+      }
+      // Clean up event listener
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     }, this.fallbackDuration);
     
     return;
