@@ -1,0 +1,54 @@
+flowchart TD
+    A[เรียก openKPlusApp] --> B{มี queryParams?}
+    B -->|ไม่มี| C[Error: QueryParams is required]
+    B -->|มี| D[Parse queryParams]
+    
+    D --> E{มี tokenId?}
+    E -->|ไม่มี| F[Error: tokenId is required]
+    E -->|มี| G{มี nextAction?}
+    G -->|ไม่มี| H[Error: nextAction is required]
+    
+    G -->|มี| I{เป็น Social App?<br/>Line/Messenger}
+    I -->|ใช่| J{Android หรือ Huawei?}
+    I -->|ไม่ใช่| K{เป็น Huawei Device?}
+    
+    J -->|ใช่| M[สร้าง URL Scheme<br/>kbank.kplus://]
+    J -->|ไม่ใช่| K
+    
+    M --> N[เปิด URL Scheme]
+    N --> O[รอ 3 วินาที]
+    O --> P{App เปิดสำเร็จ?<br/>hasNavigated = true}
+    P -->|ใช่| W
+    P -->|ไม่ใช่| R[Fallback ไป https://www.kasikornbank.com]
+    
+    K -->|ใช่| S[สร้าง Huawei URL<br/> + query parameter]
+    S --> N1[เปิด Huawei URL]
+    N1 --> N2{App เปิดสำเร็จ?}
+    N2 -->|ใช่| W
+    N2 -->|ไม่ใช่| N3[Fallback ไป https://www.kasikornbank.com]
+
+    K -->|ไม่ใช่| T[สร้าง App Link URL<br/>+ query parameters]
+    T --> M1[เปิด App Link URL]
+    M1 --> M2{App เปิดสำเร็จ?}
+    M2 -->|ใช่| W
+    M2 -->|ไม่ใช่| M3[Fallback ไป https://www.kasikornbank.com]
+    
+    
+    R --> W[จบการทำงาน]
+
+    N3 --> W
+    M3 --> W
+    
+    style A fill:#e1f5fe
+    style C fill:#ffebee
+    style F fill:#ffebee
+    style H fill:#ffebee
+    style W fill:#e0f2f1
+
+    style N fill:#e8f5e8
+    style N1 fill:#e8f5e8
+    style M1 fill:#e8f5e8
+
+    style R fill:#ffebee
+    style N3 fill:#ffebee
+    style M3 fill:#ffebee
