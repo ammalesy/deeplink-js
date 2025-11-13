@@ -78,4 +78,101 @@ body {
     box-shadow: none;
 }
 
+/* User Agent Display Box Styles */
+.user-agent-box {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    max-width: 600px;
+    width: 90%;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.user-agent-box h3 {
+    color: #ffffff;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.user-agent-content {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.ua-section {
+    margin-bottom: 15px;
+}
+
+.ua-section:last-child {
+    margin-bottom: 0;
+}
+
+.ua-section strong {
+    color: #4CAF50;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.ua-text {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 5px;
+    word-break: break-all;
+    border-left: 3px solid #4CAF50;
+}
+
+.ua-details {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #2196F3;
+}
+
+.ua-details div {
+    margin-bottom: 5px;
+    padding: 3px 0;
+}
+
+.ua-details div:last-child {
+    margin-bottom: 0;
+}
+
+.btn-small {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-small:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-small:active {
+    transform: translateY(0);
+}
+
 

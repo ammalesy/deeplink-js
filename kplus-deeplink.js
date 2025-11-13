@@ -33,16 +33,54 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 };
 
 /**
- * Detect if running inside social media app (Line, Messenger, etc.)
- * @returns {boolean} true if social media app, false otherwise
+ * Detect if running inside in-app browser (WebView) or user agent contains "DEEPLINKKP"
+ * @returns {boolean} true if in-app browser (WebView) or contains DEEPLINKKP, false otherwise
  */
-KPlusDeepLinkHandler.prototype.isSocialApp = function() {
+KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
   var userAgent = navigator.userAgent.toLowerCase();
-  for (var i = 0; i < this.socialApps.length; i++) {
-    if (userAgent.indexOf(this.socialApps[i].toLowerCase()) !== -1) {
+  
+  // Check if user agent contains "DEEPLINKKP"
+  if (userAgent.indexOf('deeplinkkp') !== -1) {
+    return true;
+  }
+  
+  // Detect WebView/in-app browser using reliable indicators
+  var webViewIndicators = [
+    'wv',              // Android WebView identifier (most reliable)
+    '; wv)',           // Android WebView in parentheses
+    'webview',         // Direct WebView mention
+    'fbav',            // Facebook app iOS
+    'fban',            // Facebook app Android
+    'instagram',       // Instagram app
+    'line',           // Line app
+    'micromessenger',  // WeChat
+    'twitter'          // Twitter app
+  ];
+  
+  // Check for WebView indicators
+  for (var i = 0; i < webViewIndicators.length; i++) {
+    if (userAgent.indexOf(webViewIndicators[i]) !== -1) {
       return true;
     }
   }
+  
+  // Additional check for Android WebView pattern
+  // Android WebView typically has: "Chrome/XX.X.XXXX.XX Mobile Safari/XXX.XX wv"
+  if (userAgent.indexOf('android') !== -1 && 
+      userAgent.indexOf('chrome') !== -1 && 
+      userAgent.indexOf('wv') !== -1) {
+    return true;
+  }
+  
+  // Check for iOS in-app browser patterns
+  // iOS apps often modify Safari user agent
+  if (userAgent.indexOf('iphone') !== -1 || userAgent.indexOf('ipad') !== -1) {
+    // If it contains Safari but doesn't contain Version/ it's likely in-app
+    if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('version/') === -1) {
+      return true;
+    }
+  }
+  
   return false;
 };
 
@@ -114,8 +152,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   var baseUrl;
   var fullUrl;
   
-  if (this.isSocialApp() && (this.isAndroidDevice() || this.isHuaweiDevice())) {
-    // For social apps on Android/Huawei devices, use URL scheme with fallback
+  if (this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) {
+    // For in-app browsers on Android/Huawei devices, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
     var self = this;
