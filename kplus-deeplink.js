@@ -5,13 +5,24 @@
  */
 
 function KPlusDeepLinkHandler() {
-  this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3"
-  //this.huaweiUrl = "https://kplusuat.dra.agconnect.link/Dtest";
+  this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3";
   this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
   this.fallbackDuration = 3000; // Duration to wait before fallback (in milliseconds)
   this.fallbackUrl = 'https://www.kasikornbank.com/th/kplus/deeplinkkplus/';
   this.scheme = 'kbank.kplus://';
-  this.socialApps = ['line', 'messenger', 'fban', 'fbav']; // Array of social app identifiers
+
+  // Detect WebView/in-app browser using reliable indicators
+  this.webViewIndicators = [
+    'wv',              // Android WebView identifier (most reliable)
+    '; wv)',           // Android WebView in parentheses
+    'webview',         // Direct WebView mention
+    'fbav',            // Facebook app iOS
+    'fban',            // Facebook app Android
+    'instagram',       // Instagram app
+    'line',           // Line app
+    'micromessenger',  // WeChat
+    'twitter'          // Twitter app
+  ];
 }
 
 /**
@@ -44,22 +55,9 @@ KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
     return true;
   }
   
-  // Detect WebView/in-app browser using reliable indicators
-  var webViewIndicators = [
-    'wv',              // Android WebView identifier (most reliable)
-    '; wv)',           // Android WebView in parentheses
-    'webview',         // Direct WebView mention
-    'fbav',            // Facebook app iOS
-    'fban',            // Facebook app Android
-    'instagram',       // Instagram app
-    'line',           // Line app
-    'micromessenger',  // WeChat
-    'twitter'          // Twitter app
-  ];
-  
   // Check for WebView indicators
-  for (var i = 0; i < webViewIndicators.length; i++) {
-    if (userAgent.indexOf(webViewIndicators[i]) !== -1) {
+  for (var i = 0; i < this.webViewIndicators.length; i++) {
+    if (userAgent.indexOf(this.webViewIndicators[i]) !== -1) {
       return true;
     }
   }
