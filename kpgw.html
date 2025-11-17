@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPGW Web Sample</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script src="kplus-deeplink.js"></script>
+    <div class="container">
+        <h1 class="title">KPGW Web Sample</h1>
+        <br>
+        <button class="btn" onclick="openKPlusDirect();">
+            เปิด K PLUS
+        </button>
+        
+        <br><br>
+        
+        <!-- User Agent Display Box -->
+        <div class="user-agent-box">
+            <h3>User Agent Information</h3>
+            <div class="user-agent-content" id="userAgentContent">
+                Loading...
+            </div>
+            <button class="btn-small" onclick="copyUserAgent()">Copy User Agent</button>
+        </div>
+  
+        <!-- <br><br>
+        <a href="https://www.kasikornbank.com/th/kplus/deeplinkkplus/?nextAction=authenwithkplus&tokenId=xxxx">Android กดที่นี่</a>
+
+        <br><br>
+        <a href="https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3Dauthenwithkplus%26tokenId%3Dxxxxx&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3">Huawei กดที่นี่</a>
+
+         <br><br>
+        <a href="kbank.kplus://resume">Test Deep ตรง กดที่นี่</a> -->
+        
+    </div>
+
+    <script>
+        // Auto-call openKPlus when page loads - use POPUP mode
+        window.addEventListener('load', function() {
+            const token = 'dummy_token';
+            const nextAction = 'authenwithkplus';
+            const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
+            openKPlus(queryParams, KPlusDisplayMode.POPUP);
+            
+            // Display user agent information
+            displayUserAgent();
+        });
+
+        function openKPlusDirect() {
+            // Call the openKPlus function with parameters - use DIRECT mode for immediate open
+            const token = 'dummy_token';
+            const nextAction = 'authenwithkplus';
+            const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
+            openKPlus(queryParams, KPlusDisplayMode.DIRECT);
+        }
+
+        function displayUserAgent() {
+            const userAgent = navigator.userAgent;
+            const userAgentElement = document.getElementById('userAgentContent');
+            
+            // Create formatted display of user agent
+            const formattedUA = `
+                <div class="ua-section">
+                    <strong>Full User Agent:</strong>
+                    <div class="ua-text">${userAgent}</div>
+                </div>
+                <div class="ua-section">
+                    <strong>Device Info:</strong>
+                    <div class="ua-details">
+                        <div>Platform: ${navigator.platform}</div>
+                        <div>Language: ${navigator.language}</div>
+                        <div>Cookie Enabled: ${navigator.cookieEnabled ? 'Yes' : 'No'}</div>
+                        <div>Online: ${navigator.onLine ? 'Yes' : 'No'}</div>
+                    </div>
+                </div>
+            `;
+            
+            userAgentElement.innerHTML = formattedUA;
+        }
+
+        function copyUserAgent() {
+            const userAgent = navigator.userAgent;
+            
+            // Try to use the Clipboard API (modern browsers)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(userAgent).then(() => {
+                    alert('User Agent copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(userAgent);
+                });
+            } else {
+                fallbackCopyTextToClipboard(userAgent);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('User Agent copied to clipboard!');
+                } else {
+                    alert('Failed to copy User Agent');
+                }
+            } catch (err) {
+                alert('Failed to copy User Agent');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
