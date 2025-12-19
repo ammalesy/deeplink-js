@@ -180,7 +180,12 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
       // Clean up event listener
       document.removeEventListener('visibilitychange', onVisibilityChange);
     }, this.fallbackDuration);
-    
+
+    // Close the browser tab after triggering openKplus
+    setTimeout(function() {
+      window.close();
+    }, this.fallbackDuration + 500); // Delay 500ms to ensure app navigation starts before closing
+
     return;
   } else if (this.isHuaweiDevice()) {
     // For Huawei devices, replace placeholders in the URL
@@ -199,6 +204,11 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   
   // Navigate directly to the URL (works better with app links in in-app browsers)
   window.location.href = fullUrl;
+
+  // Close the browser tab after triggering openKplus
+  setTimeout(function() {
+    window.close();
+  }, this.fallbackDuration + 500); // Delay 500ms to ensure app navigation starts before closing
 };
 
 // Create a global instance
