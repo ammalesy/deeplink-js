@@ -4,38 +4,6 @@
  * Compatible with Safari iOS 15+ and Android 10+ browsers
  */
 
-// Inject noscript warning to the page
-(function() {
-  // Create noscript element
-  var noscript = document.createElement('noscript');
-  var warningDiv = 
-    '<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #fff; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box;">' +
-    '<h2 style="color: #d32f2f; margin-bottom: 20px;">⚠️ กรุณาเปิดใช้งาน JavaScript</h2>' +
-    '<p style="font-size: 16px; text-align: center; margin-bottom: 15px;">เว็บไซต์นี้ต้องการ JavaScript เพื่อการทำงานที่ถูกต้อง</p>' +
-    '<p style="font-size: 14px; text-align: center; color: #666;">โปรดเปิดใช้งาน JavaScript ในการตั้งค่าเบราว์เซอร์ของคุณ</p>' +
-    '<div style="margin-top: 30px; padding: 20px; background-color: #f5f5f5; border-radius: 8px; max-width: 600px;">' +
-    '<h3 style="margin-top: 0;">วิธีเปิดใช้งาน JavaScript:</h3>' +
-    '<ul style="text-align: left; line-height: 1.8;">' +
-    '<li><strong>Chrome/Edge:</strong> Settings → Privacy and security → Site settings → JavaScript → Allowed</li>' +
-    '<li><strong>Firefox:</strong> about:config → javascript.enabled → true</li>' +
-    '<li><strong>Safari:</strong> Preferences → Security → Enable JavaScript</li>' +
-    '</ul>' +
-    '</div>' +
-    '</div>';
-  
-  noscript.innerHTML = warningDiv;
-  
-  // Insert noscript at the beginning of body when DOM is ready
-  if (document.body) {
-    document.body.insertBefore(noscript, document.body.firstChild);
-  } else {
-    // If body is not ready yet, wait for DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', function() {
-      document.body.insertBefore(noscript, document.body.firstChild);
-    });
-  }
-})();
-
 function KPlusDeepLinkHandler() {
   this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3";
   this.generalUrl = "https://kbank-uat.kasikornbank.com/th/kplus/deeplinkkplus/";
