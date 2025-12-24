@@ -45,30 +45,35 @@
     </div>
 
     <script>
+        // Error handler callback
+        function handleKPlusError(error) {
+            console.error('Error opening K PLUS:', error);
+            // Check if it's our custom error
+             if (error.name === 'KPlusNavigationError') {
+                console.error('Error Code:', error.code);
+                console.error('Error Message:', error.message);
+                    
+                // Show user-friendly message
+                alert('ไม่สามารถเปิดแอป K PLUS ได้\n\nรายละเอียด: ' + error.message);
+            } else if (error.name === 'KPlusNavigationValidationError') {
+                console.error('Validation Error Code:', error.code);
+                console.error('Validation Error Message:', error.message);
+                    
+                // Show validation error message
+                alert('ข้อมูลไม่ถูกต้อง: ' + error.message);
+            } else {
+                // Handle other types of errors
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+        }
         // Auto-call openKPlus when page loads - use POPUP mode
         window.addEventListener('load', function() {
             const token = 'dummy_token';
             const nextAction = 'authenwithkplus';
             const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
             
-            try {
-                openKPlus(queryParams, KPlusDisplayMode.POPUP);
-            } catch (error) {
-                console.error('Error opening K PLUS:', error);
-                
-                // Check if it's our custom error
-                if (error.name === 'KPlusNavigationError') {
-                    console.error('Error Code:', error.code);
-                    console.error('Error Domain:', error.exceptionDomain);
-                    console.error('Error Message:', error.exceptionMessage);
-                    
-                    // Show user-friendly message
-                    alert('ไม่สามารถเปิดแอป K PLUS ได้\n\nรายละเอียด: ' + error.message);
-                } else {
-                    // Handle other types of errors
-                    alert('เกิดข้อผิดพลาด: ' + error.message);
-                }
-            }
+            // Use try-catch only for validation errors (thrown immediately)
+            openKPlus(queryParams, KPlusDisplayMode.POPUP, handleKPlusError);
             
             // Display user agent information
             displayUserAgent();
@@ -80,24 +85,8 @@
             const nextAction = 'authenwithkplus';
             const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
             
-            try {
-                openKPlus(queryParams, KPlusDisplayMode.DIRECT);
-            } catch (error) {
-                console.error('Error opening K PLUS:', error);
-                
-                // Check if it's our custom error
-                if (error.name === 'KPlusNavigationError') {
-                    console.error('Error Code:', error.code);
-                    console.error('Error Domain:', error.exceptionDomain);
-                    console.error('Error Message:', error.exceptionMessage);
-                    
-                    // Show user-friendly message
-                    alert('ไม่สามารถเปิดแอป K PLUS ได้\n\nรหัสข้อผิดพลาด: ' + error.code + '\nประเภท: ' + error.exceptionDomain + '\nรายละเอียด: ' + error.message);
-                } else {
-                    // Handle other types of errors
-                    alert('เกิดข้อผิดพลาด: ' + error.message);
-                }
-            }
+            // Use try-catch only for validation errors (thrown immediately)
+            openKPlus(queryParams, KPlusDisplayMode.DIRECT, handleKPlusError);
         }
 
         function displayUserAgent() {

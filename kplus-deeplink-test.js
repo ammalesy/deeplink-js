@@ -162,10 +162,11 @@ KPlusDeepLinkHandler.prototype.buildQueryString = function(params) {
 /**
  * Open K PLUS app with query parameters
  * @param {string} queryParams - Query parameters string (e.g., "?nextAction=authenwithkplus&tokenId=xxxx")
+ * @param {Function} [onError] - Optional callback function for error handling (receives KPlusNavigationError)
  */
-KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
+KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
   if (!queryParams) {
-    throw new Error('QueryParams is required');
+    throw new KPlusNavigationValidationError('QueryParams is required', 1001);
   }
 
   // Parse query parameters
@@ -174,11 +175,11 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   var nextAction = params.nextAction;
 
   if (!token) {
-    throw new Error('tokenId parameter is required in queryParams');
+    throw new KPlusNavigationValidationError('tokenId parameter is required in queryParams', 1002);
   }
 
   if (!nextAction) {
-    throw new Error('nextAction parameter is required in queryParams');
+    throw new KPlusNavigationValidationError('nextAction parameter is required in queryParams', 1003);
   }
 
   // Use web URLs or URL scheme based on environment
@@ -207,10 +208,13 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
       // Try URL scheme first
       window.location.href = urlScheme;
     } catch (error) {
-      throw new KPlusNavigationError(
+      var navError = new KPlusNavigationError(
         "K PLUS app is not installed or cannot be opened.",
         1000
       );
+      if (onError) {
+        onError(navError);
+      }
       return;
     }
     
@@ -244,28 +248,31 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   document.addEventListener('visibilitychange', onVisibilityChange);
   
   // Navigate directly to the URL (works better with app links in in-app browsers)
-  // try {
-  //     // Try URL scheme first
-  //     window.location.href = fullUrl;
-  // } catch (error) {
-  //     throw new KPlusNavigationError(
-  //       "K PLUS app is not installed or cannot be opened.",
-  //       1000
-  //     );
-  //     return;
-  // }
+  try {
+    window.location.href = fullUrl;
+  } catch (error) {
+    var navError = new KPlusNavigationError(
+      "K PLUS app is not installed or cannot be opened.",
+      1000
+    );
+    if (onError) {
+      onError(navError);
+    }
+    return;
+  }
 
-  // Fallback to web URL if app is not installed (after a delay)
+  // Fallback check if app is not installed (after a delay)
   setTimeout(function() {
     // Clean up event listener
     document.removeEventListener('visibilitychange', onVisibilityChange);
 
-    // Only fallback if the app didn't open successfully
-    if (!hasNavigated) {
-      throw new KPlusNavigationError(
+    // Only trigger error callback if the app didn't open successfully
+    if (!hasNavigated && onError) {
+      var navError = new KPlusNavigationError(
         "K PLUS app is not installed or cannot be opened.",
         1000
       );
+      onError(navError);
     }
     
   }, this.fallbackDuration);
@@ -280,7 +287,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // Function to create and show modal
-function createKPlusModal(queryParams) {
+function createKPlusModal(queryParams, onError) {
   // Create modal overlay
   var modalOverlay = document.createElement('div');
   modalOverlay.id = 'kplus-modal-overlay';
@@ -394,7 +401,7 @@ function createKPlusModal(queryParams) {
   // Add event listeners
   openButton.onclick = function() {
     closeModal();
-    kplusHandler.openKPlusApp(queryParams);
+    kplusHandler.openKPlusApp(queryParams, onError);
   };
 
   closeButton.onclick = closeModal;
@@ -426,13 +433,20 @@ window.KPlusDisplayMode = {
 
 // Global function for easy access - compatible with older browsers
 // displayMode: 'POPUP' for modal popup, 'DIRECT' for direct navigation (default)
-window.openKPlus = function(queryParams, displayMode) {
+// onError: optional callback function that receives KPlusNavigationError
+window.openKPlus = function(queryParams, displayMode, onError) {
+  // Support both (queryParams, displayMode, onError) and (queryParams, onError) signatures
+  if (typeof displayMode === 'function') {
+    onError = displayMode;
+    displayMode = window.KPlusDisplayMode.DIRECT;
+  }
+  
   // Default to DIRECT if displayMode is not provided
   displayMode = displayMode || window.KPlusDisplayMode.DIRECT;
   
   if (displayMode === window.KPlusDisplayMode.POPUP) {
-    createKPlusModal(queryParams);
+    createKPlusModal(queryParams, onError);
   } else {
-    kplusHandler.openKPlusApp(queryParams);
+    kplusHandler.openKPlusApp(queryParams, onError);
   }
 };
