@@ -204,19 +204,19 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
     // Listen for page visibility changes
     document.addEventListener('visibilitychange', onVisibilityChange);
     
-    try {
-      // Try URL scheme first
-      window.location.href = urlScheme;
-    } catch (error) {
-      var navError = new KPlusNavigationError(
-        "K PLUS app is not installed or cannot be opened.",
-        1000
-      );
-      if (onError) {
-        onError(navError);
-      }
-      return;
-    }
+    // try {
+    //   // Try URL scheme first
+    //   window.location.href = urlScheme;
+    // } catch (error) {
+    //   var navError = new KPlusNavigationError(
+    //     "K PLUS app is not installed or cannot be opened.",
+    //     1000
+    //   );
+    //   if (onError) {
+    //     onError(navError);
+    //   }
+    //   return;
+    // }
     
     // Fallback to web URL if app is not installed (after a delay)
     setTimeout(function() {
@@ -248,18 +248,18 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
   document.addEventListener('visibilitychange', onVisibilityChange);
   
   // Navigate directly to the URL (works better with app links in in-app browsers)
-  try {
-    window.location.href = fullUrl;
-  } catch (error) {
-    var navError = new KPlusNavigationError(
-      "K PLUS app is not installed or cannot be opened.",
-      1000
-    );
-    if (onError) {
-      onError(navError);
-    }
-    return;
-  }
+  // try {
+  //   window.location.href = fullUrl;
+  // } catch (error) {
+  //   var navError = new KPlusNavigationError(
+  //     "K PLUS app is not installed or cannot be opened.",
+  //     1000
+  //   );
+  //   if (onError) {
+  //     onError(navError);
+  //   }
+  //   return;
+  // }
 
   // Fallback check if app is not installed (after a delay)
   setTimeout(function() {
