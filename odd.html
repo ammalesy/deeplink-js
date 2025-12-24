@@ -50,7 +50,25 @@
             const token = 'dummy_token';
             const nextAction = 'authenwithkplus';
             const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
-            openKPlus(queryParams, KPlusDisplayMode.POPUP);
+            
+            try {
+                openKPlus(queryParams, KPlusDisplayMode.POPUP);
+            } catch (error) {
+                console.error('Error opening K PLUS:', error);
+                
+                // Check if it's our custom error
+                if (error.name === 'KPlusNavigationError') {
+                    console.error('Error Code:', error.code);
+                    console.error('Error Domain:', error.exceptionDomain);
+                    console.error('Error Message:', error.exceptionMessage);
+                    
+                    // Show user-friendly message
+                    alert('ไม่สามารถเปิดแอป K PLUS ได้\n\nรายละเอียด: ' + error.message);
+                } else {
+                    // Handle other types of errors
+                    alert('เกิดข้อผิดพลาด: ' + error.message);
+                }
+            }
             
             // Display user agent information
             displayUserAgent();
@@ -61,7 +79,25 @@
             const token = 'dummy_token';
             const nextAction = 'authenwithkplus';
             const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
-            openKPlus(queryParams, KPlusDisplayMode.DIRECT);
+            
+            try {
+                openKPlus(queryParams, KPlusDisplayMode.DIRECT);
+            } catch (error) {
+                console.error('Error opening K PLUS:', error);
+                
+                // Check if it's our custom error
+                if (error.name === 'KPlusNavigationError') {
+                    console.error('Error Code:', error.code);
+                    console.error('Error Domain:', error.exceptionDomain);
+                    console.error('Error Message:', error.exceptionMessage);
+                    
+                    // Show user-friendly message
+                    alert('ไม่สามารถเปิดแอป K PLUS ได้\n\nรหัสข้อผิดพลาด: ' + error.code + '\nประเภท: ' + error.exceptionDomain + '\nรายละเอียด: ' + error.message);
+                } else {
+                    // Handle other types of errors
+                    alert('เกิดข้อผิดพลาด: ' + error.message);
+                }
+            }
         }
 
         function displayUserAgent() {

@@ -4,10 +4,45 @@
  * Compatible with Safari iOS 15+ and Android 10+ browsers
  */
 
+class KPlusNavigationValidationError extends Error {
+  /**
+   * @param {string} message - Error message
+   * @param {number} code - Error code
+   * @param {string} domain - Exception domain
+   */
+  constructor(message, code) {
+    super(message);
+    this.name = 'KPlusNavigationValidationError';
+    this.code = code;
+    
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, KPlusNavigationValidationError);
+    }
+  }
+}
+class KPlusNavigationError extends Error {
+  /**
+   * @param {string} message - Error message
+   * @param {number} code - Error code
+   * @param {string} domain - Exception domain
+   */
+  constructor(message, code) {
+    super(message);
+    this.name = 'KPlusNavigationError';
+    this.code = code;
+    
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, KPlusNavigationError);
+    }
+  }
+}
+
 function KPlusDeepLinkHandler() {
   this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3";
   this.generalUrl = "https://kbank-uat.kasikornbank.com/th/kplus/deeplinkkplus/";
-  this.fallbackDuration = 3000; // Duration to wait before fallback (in milliseconds)
+  this.fallbackDuration = 5000; // Duration to wait before fallback (in milliseconds)
   this.fallbackUrl = "https://kbank-uat.kasikornbank.com/th/kplus/deeplinkkplus/";
   this.scheme = "kbank.kplus://";
 
@@ -149,27 +184,35 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
   // Use web URLs or URL scheme based on environment
   var baseUrl;
   var fullUrl;
+  var hasNavigated = false;
+
+  // Track if the app successfully opens (page becomes hidden)
+  function onVisibilityChange() {
+    if (document.hidden) {
+        hasNavigated = true;
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
+  }
   
   if (this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) {
     // For in-app browsers on Android/Huawei devices, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
     var self = this;
-    var hasNavigated = false;
-    
-    // Track if the app successfully opens (page becomes hidden)
-    function onVisibilityChange() {
-      if (document.hidden) {
-        hasNavigated = true;
-        document.removeEventListener('visibilitychange', onVisibilityChange);
-      }
-    }
     
     // Listen for page visibility changes
     document.addEventListener('visibilitychange', onVisibilityChange);
     
-    // Try URL scheme first
-    window.location.href = urlScheme;
+    try {
+      // Try URL scheme first
+      window.location.href = urlScheme;
+    } catch (error) {
+      throw new KPlusNavigationError(
+        "K PLUS app is not installed or cannot be opened.",
+        1000
+      );
+      return;
+    }
     
     // Fallback to web URL if app is not installed (after a delay)
     setTimeout(function() {
@@ -180,11 +223,6 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
       // Clean up event listener
       document.removeEventListener('visibilitychange', onVisibilityChange);
     }, this.fallbackDuration);
-
-    // Close the browser tab after triggering openKplus
-    setTimeout(function() {
-      window.close();
-    }, this.fallbackDuration + 500); // Delay 500ms to ensure app navigation starts before closing
 
     return;
   } else if (this.isHuaweiDevice()) {
@@ -201,14 +239,36 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams) {
     var queryString = this.buildQueryString(params);
     fullUrl = baseUrl + separator + queryString;
   }
+
+  // Listen for page visibility changes
+  document.addEventListener('visibilitychange', onVisibilityChange);
   
   // Navigate directly to the URL (works better with app links in in-app browsers)
-  window.location.href = fullUrl;
+  try {
+      // Try URL scheme first
+      window.location.href = fullUrl;
+  } catch (error) {
+      throw new KPlusNavigationError(
+        "K PLUS app is not installed or cannot be opened.",
+        1000
+      );
+      return;
+  }
 
-  // Close the browser tab after triggering openKplus
+  // Fallback to web URL if app is not installed (after a delay)
   setTimeout(function() {
-    window.close();
-  }, this.fallbackDuration + 500); // Delay 500ms to ensure app navigation starts before closing
+    // Clean up event listener
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+
+    // Only fallback if the app didn't open successfully
+    if (!hasNavigated) {
+      throw new KPlusNavigationError(
+        "K PLUS app is not installed or cannot be opened.",
+        1000
+      );
+    }
+    
+  }, this.fallbackDuration);
 };
 
 // Create a global instance
