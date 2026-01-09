@@ -79,6 +79,15 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 };
 
 /**
+ * Detect if browser is MI Browser (Xiaomi/MIUI Browser)
+ * @returns {boolean} true if MI Browser, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isMIBrowser = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /miuibrowser/i.test(userAgent) || /xiaomi.*miuibrowser/i.test(userAgent);
+};
+
+/**
  * Detect if running inside in-app browser (WebView) or user agent contains "DEEPLINKKP"
  * @returns {boolean} true if in-app browser (WebView) or contains DEEPLINKKP, false otherwise
  */
@@ -195,8 +204,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
       }
   }
   
-  if (this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) {
-    // For in-app browsers on Android/Huawei devices, use URL scheme with fallback
+  if ((this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) || this.isMIBrowser()) {
+    // For in-app browsers on Android/Huawei devices or MI Browser, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
     var self = this;
