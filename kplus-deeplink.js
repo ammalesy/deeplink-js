@@ -74,8 +74,9 @@ KPlusDeepLinkHandler.prototype.isAndroidDevice = function() {
  * @returns {boolean} true if Huawei device, false otherwise
  */
 KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
-  var userAgent = navigator.userAgent.toLowerCase();
-  return /huawei/i.test(userAgent) || /honor/i.test(userAgent) || /hms/i.test(userAgent);
+  // var userAgent = navigator.userAgent.toLowerCase();
+  // return /huawei/i.test(userAgent) || /honor/i.test(userAgent) || /hms/i.test(userAgent);
+  return true;
 };
 
 /**
