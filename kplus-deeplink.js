@@ -65,9 +65,8 @@ function KPlusDeepLinkHandler() {
  * @returns {boolean} true if Android device, false otherwise
  */
 KPlusDeepLinkHandler.prototype.isAndroidDevice = function() {
-  // var userAgent = navigator.userAgent.toLowerCase();
-  // return /android/i.test(userAgent);
-  return true;
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /android/i.test(userAgent);
 };
 
 /**
@@ -93,39 +92,38 @@ KPlusDeepLinkHandler.prototype.isMIBrowser = function() {
  * @returns {boolean} true if in-app browser (WebView) or contains DEEPLINKKP, false otherwise
  */
 KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
-  return true;
-  // var userAgent = navigator.userAgent.toLowerCase();
+  var userAgent = navigator.userAgent.toLowerCase();
   
-  // // Check if user agent contains "DEEPLINKKP"
-  // if (userAgent.indexOf('deeplinkkp') !== -1) {
-  //   return true;
-  // }
+  // Check if user agent contains "DEEPLINKKP"
+  if (userAgent.indexOf('deeplinkkp') !== -1) {
+    return true;
+  }
   
-  // // Check for WebView indicators
-  // for (var i = 0; i < this.webViewIndicators.length; i++) {
-  //   if (userAgent.indexOf(this.webViewIndicators[i]) !== -1) {
-  //     return true;
-  //   }
-  // }
+  // Check for WebView indicators
+  for (var i = 0; i < this.webViewIndicators.length; i++) {
+    if (userAgent.indexOf(this.webViewIndicators[i]) !== -1) {
+      return true;
+    }
+  }
   
-  // // Additional check for Android WebView pattern
-  // // Android WebView typically has: "Chrome/XX.X.XXXX.XX Mobile Safari/XXX.XX wv"
-  // if (userAgent.indexOf('android') !== -1 && 
-  //     userAgent.indexOf('chrome') !== -1 && 
-  //     userAgent.indexOf('wv') !== -1) {
-  //   return true;
-  // }
+  // Additional check for Android WebView pattern
+  // Android WebView typically has: "Chrome/XX.X.XXXX.XX Mobile Safari/XXX.XX wv"
+  if (userAgent.indexOf('android') !== -1 && 
+      userAgent.indexOf('chrome') !== -1 && 
+      userAgent.indexOf('wv') !== -1) {
+    return true;
+  }
   
-  // // Check for iOS in-app browser patterns
-  // // iOS apps often modify Safari user agent
-  // if (userAgent.indexOf('iphone') !== -1 || userAgent.indexOf('ipad') !== -1) {
-  //   // If it contains Safari but doesn't contain Version/ it's likely in-app
-  //   if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('version/') === -1) {
-  //     return true;
-  //   }
-  // }
+  // Check for iOS in-app browser patterns
+  // iOS apps often modify Safari user agent
+  if (userAgent.indexOf('iphone') !== -1 || userAgent.indexOf('ipad') !== -1) {
+    // If it contains Safari but doesn't contain Version/ it's likely in-app
+    if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('version/') === -1) {
+      return true;
+    }
+  }
   
-  // return false;
+  return false;
 };
 
 /**
