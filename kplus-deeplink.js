@@ -246,9 +246,9 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
     var domain = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
     
     fullUrl = this.huaweiUrl
-      .replace('DOMAIN_REPLACEMENT', domain)
-      .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
-      .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
+      .replace(/DOMAIN_REPLACEMENT/g, domain)
+      .replace(/NEXT_ACTION_REPLACEMENT/g, encodeURIComponent(nextAction))
+      .replace(/TOKEN_ID_REPLACEMENT/g, encodeURIComponent(token));
   } else {
     baseUrl = this.generalUrl;
     // Check if URL already has query parameters
