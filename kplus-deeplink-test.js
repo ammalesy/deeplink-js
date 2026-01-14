@@ -40,10 +40,10 @@ class KPlusNavigationError extends Error {
 }
 
 function KPlusDeepLinkHandler() {
-  this.huaweiUrl = "https://kplusuat.dra.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap2&campaign_channel=First+Test+HMS&harmonyos_deeplink=kbank.kplus%3A%2F%2Fauthenwithkplus&preview_type=2&landing_page_type=2&region_id=3";
-  this.generalUrl = "https://kbank-uat.kasikornbank.com/th/kplus/deeplinkkplus/";
-  this.fallbackDuration = 5000; // Duration to wait before fallback (in milliseconds)
-  this.fallbackUrl = "https://kbank-uat.kasikornbank.com/th/kplus/deeplinkkplus/";
+  this.huaweiUrl = "https://kplus.drcn.agconnect.link/?deeplink=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_deeplink=kbank.kplus%3A%2F%2FDOMAIN_REPLACEMENT%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&android_fallback_url=https%3A%2F%2Fwww.kasikornbank.com%2Fth%2Fkplus%2Fdeeplinkkplus&android_open_type=3&android_package_name=com.kasikorn.retail.mbanking.wap&campaign_channel=K+PLUS&harmonyos_deeplink=kbank.kplus%3A%2F%2FDOMAIN_REPLACEMENT%3FnextAction%3DNEXT_ACTION_REPLACEMENT%26tokenId%3DTOKEN_ID_REPLACEMENT&preview_type=2&landing_page_type=2&region_id=0";
+  this.generalUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
+  this.fallbackDuration = 3000; // Duration to wait before fallback (in milliseconds)
+  this.fallbackUrl = "https://www.kasikornbank.com/th/kplus/deeplinkkplus/";
   this.scheme = "kbank.kplus://";
 
   // Detect WebView/in-app browser using reliable indicators
@@ -76,6 +76,15 @@ KPlusDeepLinkHandler.prototype.isAndroidDevice = function() {
 KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
   var userAgent = navigator.userAgent.toLowerCase();
   return /huawei/i.test(userAgent) || /honor/i.test(userAgent) || /hms/i.test(userAgent);
+};
+
+/**
+ * Detect if browser is MI Browser (Xiaomi/MIUI Browser)
+ * @returns {boolean} true if MI Browser, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isMIBrowser = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /miuibrowser/i.test(userAgent) || /xiaomi.*miuibrowser/i.test(userAgent);
 };
 
 /**
@@ -195,28 +204,29 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
       }
   }
   
-  if (this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) {
+  if ((this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) || this.isMIBrowser()) {
     // For in-app browsers on Android/Huawei devices, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
-    var urlScheme = this.scheme + encodeURIComponent(nextAction) + '?' + queryString;
+    var host = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
+    var urlScheme = this.scheme + host + '?' + queryString;
     var self = this;
     
     // Listen for page visibility changes
     document.addEventListener('visibilitychange', onVisibilityChange);
     
-    // try {
-    //   // Try URL scheme first
-    //   window.location.href = urlScheme;
-    // } catch (error) {
-    //   var navError = new KPlusNavigationError(
-    //     "K PLUS app is not installed or cannot be opened.",
-    //     1000
-    //   );
-    //   if (onError) {
-    //     onError(navError);
-    //   }
-    //   return;
-    // }
+    try {
+      // Try URL scheme first
+      window.location.href = urlScheme;
+    } catch (error) {
+      var navError = new KPlusNavigationError(
+        "K PLUS app is not installed or cannot be opened.",
+        1000
+      );
+      if (onError) {
+        onError(navError);
+      }
+      return;
+    }
     
     // Fallback to web URL if app is not installed (after a delay)
     setTimeout(function() {
@@ -231,9 +241,13 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
     return;
   } else if (this.isHuaweiDevice()) {
     // For Huawei devices, replace placeholders in the URL
+    // Determine domain based on nextAction value
+    var domain = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
+    
     fullUrl = this.huaweiUrl
-      .replace('NEXT_ACTION_REPLACEMENT', encodeURIComponent(nextAction))
-      .replace('TOKEN_ID_REPLACEMENT', encodeURIComponent(token));
+      .replace(/DOMAIN_REPLACEMENT/g, domain)
+      .replace(/NEXT_ACTION_REPLACEMENT/g, encodeURIComponent(nextAction))
+      .replace(/TOKEN_ID_REPLACEMENT/g, encodeURIComponent(token));
   } else {
     baseUrl = this.generalUrl;
     // Check if URL already has query parameters
@@ -248,18 +262,18 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
   document.addEventListener('visibilitychange', onVisibilityChange);
   
   // Navigate directly to the URL (works better with app links in in-app browsers)
-  // try {
-  //   window.location.href = fullUrl;
-  // } catch (error) {
-  //   var navError = new KPlusNavigationError(
-  //     "K PLUS app is not installed or cannot be opened.",
-  //     1000
-  //   );
-  //   if (onError) {
-  //     onError(navError);
-  //   }
-  //   return;
-  // }
+  try {
+    window.location.href = fullUrl;
+  } catch (error) {
+    var navError = new KPlusNavigationError(
+      "K PLUS app is not installed or cannot be opened.",
+      1000
+    );
+    if (onError) {
+      onError(navError);
+    }
+    return;
+  }
 
   // Fallback check if app is not installed (after a delay)
   setTimeout(function() {
@@ -308,87 +322,72 @@ function createKPlusModal(queryParams, onError) {
   var modalContent = document.createElement('div');
   modalContent.style.cssText = `
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 24px;
-    max-width: 400px;
+    max-width: 320px;
     width: 90%;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   `;
 
   // Create modal title
   var modalTitle = document.createElement('h3');
-  modalTitle.textContent = 'Open K PLUS App';
+  modalTitle.textContent = 'Open this page in "K PLUS"?';
   modalTitle.style.cssText = `
-    margin: 0 0 16px 0;
-    color: #333;
-    font-size: 18px;
-    font-weight: 600;
-  `;
-
-  // Create modal message
-  var modalMessage = document.createElement('p');
-  modalMessage.textContent = 'คุณต้องการเปิดแอป K PLUS หรือไม่?';
-  modalMessage.style.cssText = `
     margin: 0 0 24px 0;
-    color: #666;
-    font-size: 14px;
-    line-height: 1.4;
+    color: #000;
+    font-size: 17px;
+    font-weight: 600;
+    text-align: left;
   `;
 
   // Create button container
   var buttonContainer = document.createElement('div');
   buttonContainer.style.cssText = `
     display: flex;
-    gap: 12px;
-    justify-content: center;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 24px;
   `;
 
-  // Create Open K PLUS button
-  var openButton = document.createElement('button');
-  openButton.textContent = 'Open K PLUS';
-  openButton.style.cssText = `
-    background: #1976d2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 500;
+  // Create Cancel link
+  var cancelLink = document.createElement('a');
+  cancelLink.textContent = 'Cancel';
+  cancelLink.href = '#';
+  cancelLink.style.cssText = `
+    color: #007AFF;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 400;
     cursor: pointer;
-    transition: background-color 0.2s;
   `;
   
-  // Add hover effect for Open button
-  openButton.onmouseover = function() {
-    this.style.backgroundColor = '#1565c0';
+  // Add hover effect for Cancel link
+  cancelLink.onmouseover = function() {
+    this.style.opacity = '0.6';
   };
-  openButton.onmouseout = function() {
-    this.style.backgroundColor = '#1976d2';
+  cancelLink.onmouseout = function() {
+    this.style.opacity = '1';
   };
 
-  // Create Close button
-  var closeButton = document.createElement('button');
-  closeButton.textContent = 'Close';
-  closeButton.style.cssText = `
-    background: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 500;
+  // Create Open link
+  var openLink = document.createElement('a');
+  openLink.textContent = 'Open';
+  openLink.href = '#';
+  openLink.style.cssText = `
+    color: #007AFF;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
   `;
   
-  // Add hover effect for Close button
-  closeButton.onmouseover = function() {
-    this.style.backgroundColor = '#e8e8e8';
+  // Add hover effect for Open link
+  openLink.onmouseover = function() {
+    this.style.opacity = '0.6';
   };
-  closeButton.onmouseout = function() {
-    this.style.backgroundColor = '#f5f5f5';
+  openLink.onmouseout = function() {
+    this.style.opacity = '1';
   };
 
   // Function to close modal
@@ -399,12 +398,16 @@ function createKPlusModal(queryParams, onError) {
   }
 
   // Add event listeners
-  openButton.onclick = function() {
+  openLink.onclick = function(e) {
+    e.preventDefault();
     closeModal();
     kplusHandler.openKPlusApp(queryParams, onError);
   };
 
-  closeButton.onclick = closeModal;
+  cancelLink.onclick = function(e) {
+    e.preventDefault();
+    closeModal();
+  };
 
   // Close modal when clicking outside
   modalOverlay.onclick = function(e) {
@@ -414,10 +417,9 @@ function createKPlusModal(queryParams, onError) {
   };
 
   // Assemble modal
-  buttonContainer.appendChild(openButton);
-  buttonContainer.appendChild(closeButton);
+  buttonContainer.appendChild(cancelLink);
+  buttonContainer.appendChild(openLink);
   modalContent.appendChild(modalTitle);
-  modalContent.appendChild(modalMessage);
   modalContent.appendChild(buttonContainer);
   modalOverlay.appendChild(modalContent);
 
