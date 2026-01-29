@@ -88,6 +88,15 @@ KPlusDeepLinkHandler.prototype.isMIBrowser = function() {
 };
 
 /**
+ * Detect if browser is Samsung Internet Browser
+ * @returns {boolean} true if Samsung Internet Browser, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isSamsungInternetBrowser = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /samsungbrowser/i.test(userAgent);
+};
+
+/**
  * Detect if running inside in-app browser (WebView) or user agent contains "DEEPLINKKP"
  * @returns {boolean} true if in-app browser (WebView) or contains DEEPLINKKP, false otherwise
  */
@@ -204,7 +213,7 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
       }
   }
   
-  if ((this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) || this.isMIBrowser()) {
+  if ((this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) || this.isMIBrowser() || this.isSamsungInternetBrowser()) {
     // For in-app browsers on Android/Huawei devices, use URL scheme with fallback
     var queryString = this.buildQueryString(params);
     var host = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
