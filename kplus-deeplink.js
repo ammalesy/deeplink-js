@@ -61,6 +61,15 @@ function KPlusDeepLinkHandler() {
 }
 
 /**
+ * Detect if device is iOS device (iPhone, iPad, iPod)
+ * @returns {boolean} true if iOS device, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isIOSDevice = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/i.test(userAgent);
+};
+
+/**
  * Detect if device is Android
  * @returns {boolean} true if Android device, false otherwise
  */
@@ -79,24 +88,6 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 };
 
 /**
- * Detect if browser is MI Browser (Xiaomi/MIUI Browser)
- * @returns {boolean} true if MI Browser, false otherwise
- */
-KPlusDeepLinkHandler.prototype.isMIBrowser = function() {
-  var userAgent = navigator.userAgent.toLowerCase();
-  return /miuibrowser/i.test(userAgent) || /xiaomi.*miuibrowser/i.test(userAgent);
-};
-
-/**
- * Detect if browser is Samsung Internet Browser
- * @returns {boolean} true if Samsung Internet Browser, false otherwise
- */
-KPlusDeepLinkHandler.prototype.isSamsungInternetBrowser = function() {
-  var userAgent = navigator.userAgent.toLowerCase();
-  return /samsungbrowser/i.test(userAgent);
-};
-
-/**
  * Detect if running inside in-app browser (WebView) or user agent contains "DEEPLINKKP"
  * @returns {boolean} true if in-app browser (WebView) or contains DEEPLINKKP, false otherwise
  */
@@ -106,13 +97,6 @@ KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
   // Check if user agent contains "DEEPLINKKP"
   if (userAgent.indexOf('deeplinkkp') !== -1) {
     return true;
-  }
-  
-  // Check for WebView indicators
-  for (var i = 0; i < this.webViewIndicators.length; i++) {
-    if (userAgent.indexOf(this.webViewIndicators[i]) !== -1) {
-      return true;
-    }
   }
   
   // Additional check for Android WebView pattern
@@ -128,6 +112,41 @@ KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
   if (userAgent.indexOf('iphone') !== -1 || userAgent.indexOf('ipad') !== -1) {
     // If it contains Safari but doesn't contain Version/ it's likely in-app
     if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('version/') === -1) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
+/**
+ * Detect if browser is Chrome
+ * @returns {boolean} true if Chrome browser, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isChromeBrowser = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  
+  // Check for Chrome browser
+  // Chrome contains "chrome" in user agent
+  // Exclude Edge (Chromium-based but different browser)
+  // Exclude Opera (Chromium-based but different browser)
+  var isChrome = userAgent.indexOf('chrome') !== -1 && 
+                 userAgent.indexOf('edg') === -1 && 
+                 userAgent.indexOf('opr') === -1;
+  
+  return isChrome;
+};
+
+/**
+ * Detect if running inside social media app browser
+ * @returns {boolean} true if social media app browser, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isSocialApp = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  
+  // Check each indicator from webViewIndicators array
+  for (var i = 0; i < this.webViewIndicators.length; i++) {
+    if (userAgent.indexOf(this.webViewIndicators[i]) !== -1) {
       return true;
     }
   }
@@ -178,6 +197,175 @@ KPlusDeepLinkHandler.prototype.buildQueryString = function(params) {
 };
 
 /**
+ * Open K PLUS app using URL scheme with fallback
+ * @param {Object} params - Query parameters object
+ * @param {string} nextAction - Next action parameter
+ * @param {Function} [onError] - Optional callback function for error handling
+ * @private
+ */
+KPlusDeepLinkHandler.prototype.openURLScheme = function(params, nextAction, onError) {
+  var queryString = this.buildQueryString(params);
+  var host = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
+  var urlScheme = this.scheme + host + '?' + queryString;
+  var self = this;
+  var hasNavigated = false;
+  
+  // Track if the app successfully opens (page becomes hidden)
+  function onVisibilityChange() {
+    if (document.hidden) {
+      hasNavigated = true;
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    }
+  }
+  
+  // Listen for page visibility changes
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  
+  try {
+    // Try URL scheme first
+    window.location.href = urlScheme;
+  } catch (error) {
+    var navError = new KPlusNavigationError(
+      "K PLUS app is not installed or cannot be opened.",
+      1000
+    );
+    if (onError) {
+      onError(navError);
+    }
+    return;
+  }
+  
+  // Fallback to web URL if app is not installed (after a delay)
+  setTimeout(function() {
+    // Only fallback if the app didn't open successfully
+    if (!hasNavigated) {
+      window.location.href = self.fallbackUrl;
+    }
+    // Clean up event listener
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, this.fallbackDuration);
+};
+
+/**
+ * Open Huawei app links with replaced placeholders and navigate
+ * @param {string} nextAction - Next action parameter
+ * @param {string} token - Token ID
+ * @param {Function} [onError] - Optional callback function for error handling
+ * @private
+ */
+KPlusDeepLinkHandler.prototype.openHuaweiAppLinks = function(nextAction, token, onError) {
+  var self = this;
+  var hasNavigated = false;
+  
+  // Track if the app successfully opens (page becomes hidden)
+  function onVisibilityChange() {
+    if (document.hidden) {
+      hasNavigated = true;
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    }
+  }
+  
+  // Determine domain based on nextAction value
+  var domain = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
+  
+  var fullUrl = this.huaweiUrl
+    .replace(/DOMAIN_REPLACEMENT/g, domain)
+    .replace(/NEXT_ACTION_REPLACEMENT/g, encodeURIComponent(nextAction))
+    .replace(/TOKEN_ID_REPLACEMENT/g, encodeURIComponent(token));
+  
+  // Listen for page visibility changes
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  
+  // Navigate directly to the URL
+  try {
+    window.location.href = fullUrl;
+  } catch (error) {
+    var navError = new KPlusNavigationError(
+      "K PLUS app is not installed or cannot be opened.",
+      1000
+    );
+    if (onError) {
+      onError(navError);
+    }
+    return;
+  }
+  
+  // Fallback check if app is not installed (after a delay)
+  setTimeout(function() {
+    // Clean up event listener
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+    
+    // Only trigger error callback if the app didn't open successfully
+    if (!hasNavigated && onError) {
+      var navError = new KPlusNavigationError(
+        "K PLUS app is not installed or cannot be opened.",
+        1000
+      );
+      onError(navError);
+    }
+  }, self.fallbackDuration);
+};
+
+/**
+ * Open Apple/Google App Links
+ * @param {string} nextAction - Next action parameter
+ * @param {string} token - Token ID
+ * @param {Object} params - All query parameters
+ * @param {Function} [onError] - Optional callback function for error handling
+ * @private
+ */
+KPlusDeepLinkHandler.prototype.openAppLinks = function(params, onError) {
+  var self = this;
+  var hasNavigated = false;
+  
+  // Track if the app successfully opens (page becomes hidden)
+  function onVisibilityChange() {
+    if (document.hidden) {
+      hasNavigated = true;
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    }
+  }
+  
+  // Build full URL with all parameters
+  var baseUrl = this.generalUrl;
+  var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+  var queryString = this.buildQueryString(params);
+  var fullUrl = baseUrl + separator + queryString;
+  
+  // Listen for page visibility changes
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  
+  // Navigate directly to the URL
+  try {
+    window.location.href = fullUrl;
+  } catch (error) {
+    var navError = new KPlusNavigationError(
+      "K PLUS app is not installed or cannot be opened.",
+      1000
+    );
+    if (onError) {
+      onError(navError);
+    }
+    return;
+  }
+  
+  // Fallback check if app is not installed (after a delay)
+  setTimeout(function() {
+    // Clean up event listener
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+    
+    // Only trigger error callback if the app didn't open successfully
+    if (!hasNavigated && onError) {
+      var navError = new KPlusNavigationError(
+        "K PLUS app is not installed or cannot be opened.",
+        1000
+      );
+      onError(navError);
+    }
+  }, self.fallbackDuration);
+};
+
+/**
  * Open K PLUS app with query parameters
  * @param {string} queryParams - Query parameters string (e.g., "?nextAction=authenwithkplus&tokenId=xxxx")
  * @param {Function} [onError] - Optional callback function for error handling (receives KPlusNavigationError)
@@ -200,105 +388,28 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
     throw new KPlusNavigationValidationError('nextAction parameter is required in queryParams', 1003);
   }
 
-  // Use web URLs or URL scheme based on environment
-  var baseUrl;
-  var fullUrl;
-  var hasNavigated = false;
-
-  // Track if the app successfully opens (page becomes hidden)
-  function onVisibilityChange() {
-    if (document.hidden) {
-        hasNavigated = true;
-        document.removeEventListener('visibilitychange', onVisibilityChange);
-      }
-  }
-  
-  if ((this.isInappBrowser() && (this.isAndroidDevice() || this.isHuaweiDevice())) || this.isMIBrowser() || this.isSamsungInternetBrowser()) {
-    // For in-app browsers on Android/Huawei devices, use URL scheme with fallback
-    var queryString = this.buildQueryString(params);
-    var host = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
-    var urlScheme = this.scheme + host + '?' + queryString;
-    var self = this;
-    
-    // Listen for page visibility changes
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    
-    try {
-      // Try URL scheme first
-      window.location.href = urlScheme;
-    } catch (error) {
-      var navError = new KPlusNavigationError(
-        "K PLUS app is not installed or cannot be opened.",
-        1000
-      );
-      if (onError) {
-        onError(navError);
-      }
-      return;
-    }
-    
-    // Fallback to web URL if app is not installed (after a delay)
-    setTimeout(function() {
-      // Only fallback if the app didn't open successfully
-      if (!hasNavigated) {
-        window.location.href = self.fallbackUrl;
-      }
-      // Clean up event listener
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-    }, this.fallbackDuration);
-
-    return;
+  if (this.isIOSDevice()) {
+    // For iOS devices, use Universal Links
+    this.openAppLinks(params, onError);
   } else if (this.isHuaweiDevice()) {
-    // For Huawei devices, replace placeholders in the URL
-    // Determine domain based on nextAction value
-    var domain = nextAction !== 'authenwithkplus' ? 'actionwithkplus' : 'authenwithkplus';
-    
-    fullUrl = this.huaweiUrl
-      .replace(/DOMAIN_REPLACEMENT/g, domain)
-      .replace(/NEXT_ACTION_REPLACEMENT/g, encodeURIComponent(nextAction))
-      .replace(/TOKEN_ID_REPLACEMENT/g, encodeURIComponent(token));
+    // For Huawei devices, use Huawei-specific URL format
+    if (this.isSocialApp()) {
+      // For Huawei devices in social media apps, use URL Scheme with fallback
+      this.openURLScheme(params, nextAction, onError);
+    } else {
+      // For Huawei devices in Chrome, in-app and other browsers, use Huawei-specific URL format
+      this.openHuaweiAppLinks(nextAction, token, onError);
+    }
   } else {
-    baseUrl = this.generalUrl;
-    // Check if URL already has query parameters
-    var separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
-
-    // Build full URL with all parameters
-    var queryString = this.buildQueryString(params);
-    fullUrl = baseUrl + separator + queryString;
+    // For other Android devices, use URL Scheme with fallback
+    if (this.isInappBrowser() || this.isChromeBrowser()) {
+      // For Android devices in in-app browsers or Chrome Browser, use Universal Links
+      this.openAppLinks(params, onError);
+    } else {
+      // For Android devices in social app and other browsers, use URL Scheme with fallback
+      this.openURLScheme(params, nextAction, onError);
+    } 
   }
-
-  // Listen for page visibility changes
-  document.addEventListener('visibilitychange', onVisibilityChange);
-  
-  // Navigate directly to the URL (works better with app links in in-app browsers)
-  try {
-    window.location.href = fullUrl;
-  } catch (error) {
-    var navError = new KPlusNavigationError(
-      "K PLUS app is not installed or cannot be opened.",
-      1000
-    );
-    if (onError) {
-      onError(navError);
-    }
-    return;
-  }
-
-  // Fallback check if app is not installed (after a delay)
-  setTimeout(function() {
-    // Clean up event listener
-    document.removeEventListener('visibilitychange', onVisibilityChange);
-
-    // Only trigger error callback if the app didn't open successfully
-    if (!hasNavigated && onError) {
-      var navError = new KPlusNavigationError(
-        "K PLUS app is not installed or cannot be opened.",
-        1000
-      );
-      onError(navError);
-    }
-    
-  }, this.fallbackDuration);
 };
 
 // Create a global instance
