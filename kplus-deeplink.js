@@ -402,8 +402,8 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
     }
   } else {
     // For other Android devices, use URL Scheme with fallback
-    if (this.isInappBrowser() || this.isChromeBrowser()) {
-      // For Android devices in in-app browsers or Chrome Browser, use Universal Links
+    if (this.isInappBrowser()) {
+      // For Android devices in in-app browsers, use Universal Links
       this.openAppLinks(params, onError);
     } else {
       // For Android devices in social app and other browsers, use URL Scheme with fallback
