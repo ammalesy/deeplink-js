@@ -51,9 +51,13 @@ function KPlusDeepLinkHandler() {
     'fbav',            // Facebook app iOS
     'fban',            // Facebook app Android
     'instagram',       // Instagram app
-    'line',           // Line app
+    'line',            // Line app
     'micromessenger',  // WeChat
-    'twitter'          // Twitter app
+    'twitter',         // Twitter app
+    'tiktok',          // TikTok app
+    'telegram',        // Telegram app
+    'messenger',       // Facebook Messenger
+    'whatsapp'        // WhatsApp
   ];
 }
 
