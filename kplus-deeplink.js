@@ -48,9 +48,6 @@ function KPlusDeepLinkHandler() {
 
   // Detect WebView/in-app browser using reliable indicators
   this.webViewIndicators = [
-    'wv',              // Android WebView identifier (most reliable)
-    '; wv)',           // Android WebView in parentheses
-    'webview',         // Direct WebView mention
     'fbav',            // Facebook app iOS
     'fban',            // Facebook app Android
     'instagram',       // Instagram app
@@ -392,7 +389,6 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
     // For iOS devices, use Universal Links
     this.openAppLinks(params, onError);
   } else if (this.isHuaweiDevice()) {
-    // For Huawei devices, use Huawei-specific URL format
     if (this.isSocialApp()) {
       // For Huawei devices in social media apps, use URL Scheme with fallback
       this.openURLScheme(params, nextAction, onError);
@@ -401,8 +397,10 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
       this.openHuaweiAppLinks(nextAction, token, onError);
     }
   } else {
-    // For other Android devices, use URL Scheme with fallback
-    if (this.isInappBrowser()) {
+    if (this.isSocialApp()) {
+      // For Android devices in social media apps, use URL Scheme with fallback
+      this.openURLScheme(params, nextAction, onError);
+    } else if (this.isInappBrowser()) {
       // For Android devices in in-app browsers, use Universal Links
       this.openAppLinks(params, onError);
     } else {
