@@ -95,11 +95,6 @@ KPlusDeepLinkHandler.prototype.isHuaweiDevice = function() {
 KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
   var userAgent = navigator.userAgent.toLowerCase();
   
-  // Check if user agent contains "DEEPLINKKP"
-  if (userAgent.indexOf('deeplinkkp') !== -1) {
-    return true;
-  }
-  
   // Additional check for Android WebView pattern
   // Android WebView typically has: "Chrome/XX.X.XXXX.XX Mobile Safari/XXX.XX wv"
   if (userAgent.indexOf('android') !== -1 && 
@@ -115,6 +110,21 @@ KPlusDeepLinkHandler.prototype.isInappBrowser = function() {
     if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('version/') === -1) {
       return true;
     }
+  }
+  
+  return false;
+};
+
+/**
+ * Detect if running inside in-app browser (WebView) or user agent contains "DEEPLINKKP"
+ * @returns {boolean} true if in-app browser (WebView) or contains DEEPLINKKP, false otherwise
+ */
+KPlusDeepLinkHandler.prototype.isInappBrowserForPartner = function() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  
+  // Check if user agent contains "DEEPLINKKP"
+  if (userAgent.indexOf('deeplinkkp') !== -1) {
+    return true;
   }
   
   return false;
@@ -390,27 +400,19 @@ KPlusDeepLinkHandler.prototype.openKPlusApp = function(queryParams, onError) {
   }
 
   if (this.isIOSDevice()) {
-    // For iOS devices, use Universal Links
     this.openAppLinks(params, onError);
   } else if (this.isHuaweiDevice()) {
-    if (this.isSocialApp()) {
-      // For Huawei devices in social media apps, use URL Scheme with fallback
-      this.openURLScheme(params, nextAction, onError);
-    } else {
-      // For Huawei devices in Chrome, in-app and other browsers, use Huawei-specific URL format
+    if (this.isInappBrowserForPartner()) {
       this.openHuaweiAppLinks(nextAction, token, onError);
+    } else {
+      this.openURLScheme(params, nextAction, onError);
     }
   } else {
-    if (this.isSocialApp()) {
-      // For Android devices in social media apps, use URL Scheme with fallback
-      this.openURLScheme(params, nextAction, onError);
-    } else if (this.isInappBrowser()) {
-      // For Android devices in in-app browsers, use Universal Links
+    if (this.isInappBrowserForPartner()) {
       this.openAppLinks(params, onError);
     } else {
-      // For Android devices in social app and other browsers, use URL Scheme with fallback
       this.openURLScheme(params, nextAction, onError);
-    } 
+    }
   }
 };
 
