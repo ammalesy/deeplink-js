@@ -73,7 +73,7 @@
             const queryParams = '?nextAction=' + nextAction + '&tokenId=' + token;
             
             // Use try-catch only for validation errors (thrown immediately)
-            openKPlus(queryParams, KPlusDisplayMode.DIRECT, handleKPlusError);
+            openKPlus(queryParams, KPlusDisplayMode.POPUP, handleKPlusError);
             
             // Display user agent information
             displayUserAgent();
